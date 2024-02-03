@@ -11,6 +11,7 @@ app.get("/", (req, res) => {
 });
 
 // add router below this comment
+app.use("/users");
 
 app.listen(port, () => {
   console.log(`This app running at http://localhost:${port}`);

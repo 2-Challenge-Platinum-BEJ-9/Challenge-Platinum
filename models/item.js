@@ -13,11 +13,51 @@ module.exports = (sequelize, DataTypes) => {
   }
   Item.init(
     {
-      name: DataTypes.STRING(30),
-      price: DataTypes.FLOAT,
-      stock: DataTypes.INTEGER,
-      category: DataTypes.TEXT,
-      image: DataTypes.TEXT,
+      name: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "item name is empty",
+          },
+        },
+      },
+      price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "item price is empty",
+          },
+        },
+      },
+      stock: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "item stock is empty",
+          },
+        },
+      },
+      category: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "item category is empty",
+          },
+        },
+      },
+      image: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "item image is empty",
+          },
+        },
+      },
     },
     {
       sequelize,
