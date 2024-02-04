@@ -41,6 +41,7 @@ module.exports = {
       },
       isAdmin: {
         allowNull: false,
+        defaultValue:false,
         type: Sequelize.BOOLEAN
       },
       image: {
