@@ -24,7 +24,7 @@ module.exports = {
       },
       category: {
         allowNull: false,
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(30),
       },
       image: {
         allowNull: false,

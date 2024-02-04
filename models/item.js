@@ -22,15 +22,22 @@ module.exports = (sequelize, DataTypes) => {
         },
         validate: {
           notNull: {
-            msg: "item name is empty",
+            msg: "item name is null",
+          },
+          notEmpty: {
+            msg: "item name is null",
           },
         },
       },
       price: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        defaultValue: 0,
         validate: {
           notNull: {
+            msg: "item price is null",
+          },
+          notEmpty: {
             msg: "item price is empty",
           },
         },
@@ -38,17 +45,24 @@ module.exports = (sequelize, DataTypes) => {
       stock: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
         validate: {
           notNull: {
+            msg: "item stock is null",
+          },
+          notEmpty: {
             msg: "item stock is empty",
           },
         },
       },
       category: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(30),
         allowNull: false,
         validate: {
           notNull: {
+            msg: "item category is null",
+          },
+          notEmpty: {
             msg: "item category is empty",
           },
         },
@@ -58,6 +72,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notNull: {
+            msg: "item image is null",
+          },
+          notEmpty: {
             msg: "item image is empty",
           },
         },
