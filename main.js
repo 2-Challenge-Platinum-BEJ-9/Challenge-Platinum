@@ -6,13 +6,12 @@ const port = 3000;
 
 app.use(morgan("short"));
 app.use(express.json());
-app.use(router);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Bingleshop!");
 });
 
-// router bellow!
+app.use("api/v1", router);
 
 app.listen(port, () => {
   console.log(`This app running at http://localhost:${port}`);
