@@ -1,7 +1,7 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
+const user = require("./user");
+const item = require("./item");
 module.exports = (sequelize, DataTypes) => {
   class order extends Model {
     /**
@@ -13,15 +13,75 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  order.init({
-    userId: DataTypes.INTEGER,
-    itemId: DataTypes.INTEGER,
-    qty: DataTypes.INTEGER,
-    totalPrice: DataTypes.FLOAT,
-    status: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'order',
-  });
+  order.init(
+    {
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        notEmpty: true,
+        unique: true,
+        references: {
+          modelName: user,
+          key: "id",
+        },
+      },
+
+      itemId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        notEmpty: true,
+        unique: true,
+        references: {
+          modelName: item,
+          key: "id",
+        },
+      },
+      qty: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        notEmpty: true,
+        defaultValue: 0,
+        validate: {
+          notNull: {
+            msg: "order quantity is null",
+          },
+          notEmpty: {
+            msg: "order quantity is empty",
+          },
+        },
+      },
+      totalPrice: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        notEmpty: true,
+        defaultValue: 0,
+        validate: {
+          notNull: {
+            msg: "total price is null",
+          },
+          notEmpty: {
+            msg: "total price is empty",
+          },
+        },
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "order status is null",
+          },
+          notEmpty: {
+            msg: "order status is empty",
+          },
+        },
+      },
+    },
+    {
+      sequelize,
+      modelName: "order",
+    }
+  );
   return order;
 };
