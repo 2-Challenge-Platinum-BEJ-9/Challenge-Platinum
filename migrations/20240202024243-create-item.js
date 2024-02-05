@@ -17,10 +17,12 @@ module.exports = {
       price: {
         allowNull: false,
         type: Sequelize.FLOAT,
+        defaultValue: 0,
       },
       stock: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
       category: {
         allowNull: false,

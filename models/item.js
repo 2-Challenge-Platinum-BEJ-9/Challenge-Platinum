@@ -34,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: false,
         notEmpty: true,
-        defaultValue: 0,
         validate: {
           notNull: {
             msg: "item price is null",
@@ -48,7 +47,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         notEmpty: true,
-        defaultValue: 0,
         validate: {
           notNull: {
             msg: "item stock is null",
