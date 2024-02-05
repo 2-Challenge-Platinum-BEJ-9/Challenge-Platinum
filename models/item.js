@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING(30),
         allowNull: false,
+        notEmpty: true,
         unique: {
           args: true,
           msg: "item is already",
@@ -32,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       price: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        notEmpty: true,
         defaultValue: 0,
         validate: {
           notNull: {
@@ -45,6 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       stock: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        notEmpty: true,
         defaultValue: 0,
         validate: {
           notNull: {
@@ -58,6 +61,7 @@ module.exports = (sequelize, DataTypes) => {
       category: {
         type: DataTypes.STRING(30),
         allowNull: false,
+        notEmpty: true,
         validate: {
           notNull: {
             msg: "item category is null",
@@ -70,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
       image: {
         type: DataTypes.TEXT,
         allowNull: false,
+        notEmpty: true,
         validate: {
           notNull: {
             msg: "item image is null",
@@ -82,6 +87,7 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: false,
+        notEmpty: true,
         validate: {
           notNull: {
             msg: "item description is null",
