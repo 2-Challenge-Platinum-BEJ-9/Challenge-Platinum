@@ -4,7 +4,7 @@ const itemRouter = require("../router/itemRouter");
 const orderRouter = require("../router/orderRouter");
 const authRouter = require("../router/authRouter");
 
-router.use("/", authRouter);
+router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/items", itemRouter);
 router.use("/orders", orderRouter);
