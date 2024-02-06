@@ -40,7 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         notEmpty: true,
-        defaultValue: 0,
         validate: {
           notNull: {
             msg: "order quantity is null",
@@ -54,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: false,
         notEmpty: true,
-        defaultValue: 0,
+
         validate: {
           notNull: {
             msg: "total price is null",
@@ -65,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       status: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM("pending", "processing", "shipped", "delivered", "canceled"),
         allowNull: false,
         notEmpty: true,
         validate: {

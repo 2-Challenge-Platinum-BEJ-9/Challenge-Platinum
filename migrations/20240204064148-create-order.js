@@ -32,10 +32,12 @@ module.exports = {
       qty: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
       totalPrice: {
         allowNull: false,
         type: Sequelize.FLOAT,
+        defaultValue: 0,
       },
       status: {
         allowNull: false,
