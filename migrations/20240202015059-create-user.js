@@ -11,25 +11,25 @@ module.exports = {
       },
       firstName: {
         allowNull: false,
-        type: Sequelize.STRING(30)
+        type: Sequelize.STRING(100)
       },
       lastName: {
         allowNull: false,
-        type: Sequelize.STRING(30)
+        type: Sequelize.STRING(100)
       },
       email: {
         allowNull: false,
         unique: true,
-        type: Sequelize.STRING(30)
+        type: Sequelize.STRING(100)
       },
       phoneNumber: {
         allowNull: false,
         unique: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING(30)
       },
       address: {
         allowNull: false,
-        type: Sequelize.STRING(100)
+        type: Sequelize.TEXT
       },
       password: {
         allowNull: false,
@@ -39,9 +39,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT
       },
-      role: {
+      isAdmin: {
         allowNull: false,
-        type: Sequelize.STRING(10)
+        defaultValue:false,
+        type: Sequelize.BOOLEAN
       },
       image: {
         allowNull: false,
