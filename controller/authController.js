@@ -1,10 +1,6 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
-const {
-  successResponse,
-  successCreatedResponse,
-  errorResponse,
-} = require("../helper/fornatResponse");
+const { successResponse, errorResponse } = require("../helper/fornatResponse");
 const attributes = [
   "id",
   "firstName",
@@ -30,13 +26,13 @@ class AuthUser {
 
     try {
       if (checkEmail) {
-        throw Error(
+        throw new Error(
           (message = `User with email ${email} already exist, try with different email`)
         );
       }
 
       if (checkPhone) {
-        throw Error(
+        throw new Error(
           (message = `User with phone number ${phoneNumber} already exist, try with different phone number`)
         );
       }
@@ -60,7 +56,7 @@ class AuthUser {
         attributes: attributes,
       });
 
-      successCreatedResponse(res, data, message);
+      successResponse(res, 201, data, "Success: The request was created.");
     } catch (error) {
       errorResponse(res, error, message);
     }

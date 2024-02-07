@@ -2,22 +2,11 @@
 
 function successResponse(
   res,
+  statusCode,
   data,
   message = "Success: The request was successful."
 ) {
-  res.status(200).json({
-    status: "success",
-    data,
-    message,
-  });
-}
-
-function successCreatedResponse(
-  res,
-  data,
-  message = "Success: The request was created successful."
-) {
-  res.status(201).json({
+  res.status(statusCode).json({
     status: "success",
     data,
     message,
@@ -50,10 +39,17 @@ function serverErrorResponse(res, message = "Internal Server Error") {
   });
 }
 
+function methodNotAllowed(req, res, next) {
+  res.status(405).json({
+    status: "error",
+    message: "Method not supported!",
+  });
+}
+
 module.exports = {
   successResponse,
-  successCreatedResponse,
   errorResponse,
   notfoundResponse,
   serverErrorResponse,
+  methodNotAllowed,
 };
