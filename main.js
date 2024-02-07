@@ -8,7 +8,8 @@ app.use(morgan("short"));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Welcome to Bingleshop!");
+  let message = "Welcome to Bingleshop!";
+  res.json({ message });
 });
 
 app.use("/api/v1", router);

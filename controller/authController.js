@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
-const { successResponse, errorResponse } = require("../helper/fornatResponse");
+const {
+  successResponse,
+  errorResponse,
+  serverErrorResponse,
+} = require("../helper/fornatResponse");
 const attributes = [
   "id",
   "firstName",
@@ -22,50 +26,69 @@ class AuthUser {
       phoneNumber,
       address,
       password,
+      passwordMatch,
+      token,
       image,
     } = req.body;
     let message;
 
+    const checkEmail = await User.findOne({ where: { email: email } });
+    const checkPhone = await User.findOne({
+      where: { phoneNumber: phoneNumber },
+    });
+
     try {
-      const checkEmail = await User.findOne({ where: { email: email } });
-      const checkPhone = await User.findOne({
-        where: { phoneNumber: phoneNumber },
-      });
+      if (password !== passwordMatch) {
+        throw new Error((message = "Password not match!"));
+      }
 
       if (checkEmail) {
-        throw new Error(
+        throw Error(
           (message = `User with email ${email} already exist, try with different email`)
         );
       }
 
       if (checkPhone) {
-        throw new Error(
+        throw Error(
           (message = `User with phone number ${phoneNumber} already exist, try with different phone number`)
         );
       }
 
-      const saltRounds = 20;
+      const saltRounds = 10;
       let hash = bcrypt.hashSync(password, saltRounds);
-      await User.create({
+      const data = await User.create({
         firstName: firstName,
         lastName: lastName,
         email: email,
         phoneNumber: phoneNumber,
         address: address,
         password: hash,
-        token,
-        isAdmin,
+        token: token,
         image: image,
+        isAdmin: false,
       });
 
-      const data = await User.findOne({
-        where: { firstName: firstName, lastName: lastName, email: email },
-        attributes: attributes,
-      });
+      // const data = await User.findOne({
+      //   where: { firstName: firstName, lastName: lastName, email: email },
+      //   attributes: attributes,
+      // });
 
-      successResponse(res, 201, data, "Success: The request was created.");
+      return successResponse(
+        res,
+        201,
+        data,
+        "Success: The request was created."
+      );
     } catch (error) {
-      errorResponse(res, error, message);
+      if (error.errors) {
+        errorResponse(
+          res,
+          error.errors.map((err) => err.message)
+        );
+      } else {
+        serverErrorResponse(res);
+      }
+      console.log(error);
     }
   }
 

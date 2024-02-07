@@ -2,7 +2,7 @@ const router = require("express").Router();
 const AuthUser = require("../controller/authController");
 const { methodNotAllowed } = require("../helper/fornatResponse");
 
-router.route("/").post(AuthUser.postRegister).all(methodNotAllowed); // endpoint /api/v1/auth
+router.route("/").post(AuthUser.postRegister); // endpoint /api/v1/auth
 router
   .route("/login")
   .post(AuthUser.postLogin)
