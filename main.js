@@ -11,7 +11,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to Bingleshop!");
 });
 
-app.use("api/v1", router);
+app.use("/api/v1", router);
 
 app.listen(port, () => {
   console.log(`This app running at http://localhost:${port}`);
