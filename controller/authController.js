@@ -15,16 +15,23 @@ const attributes = [
 
 class AuthUser {
   static async postRegister(req, res) {
-    const { firstName, lastName, email, phoneNumber, address, password } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      address,
+      password,
+      image,
+    } = req.body;
     let message;
 
-    const checkEmail = await User.findOne({ where: { email: email } });
-    const checkPhone = await User.findOne({
-      where: { phoneNumber: phoneNumber },
-    });
-
     try {
+      const checkEmail = await User.findOne({ where: { email: email } });
+      const checkPhone = await User.findOne({
+        where: { phoneNumber: phoneNumber },
+      });
+
       if (checkEmail) {
         throw new Error(
           (message = `User with email ${email} already exist, try with different email`)
@@ -48,7 +55,7 @@ class AuthUser {
         password: hash,
         token,
         isAdmin,
-        image,
+        image: image,
       });
 
       const data = await User.findOne({
