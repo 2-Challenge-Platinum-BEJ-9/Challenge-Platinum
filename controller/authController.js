@@ -1,5 +1,5 @@
-const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const { Op } = require("sequelize");
 const {
   successResponse,
   errorResponse,
@@ -13,12 +13,10 @@ const attributes = [
   "phoneNumber",
   "address",
   "authToken",
-  "createdAt",
-  "updatedAt",
 ];
 
 class AuthUser {
-  static async postRegister(req, res) {
+  static async register(req, res) {
     const {
       firstName,
       lastName,
@@ -29,62 +27,61 @@ class AuthUser {
       passwordMatch,
       token,
       image,
+      isAdmin,
     } = req.body;
-    let message;
 
-    const checkEmail = await User.findOne({ where: { email: email } });
-    const checkPhone = await User.findOne({
-      where: { phoneNumber: phoneNumber },
-    });
+    // // const checkEmail = await User.findOne({ where: { email: email } });
+    // // const checkPhone = await User.findOne({
+    // //   where: { phoneNumber: phoneNumber },
+    // });
 
     try {
       if (password !== passwordMatch) {
-        throw new Error((message = "Password not match!"));
+        throw new Error("Password not match!");
       }
 
-      if (checkEmail) {
-        throw Error(
-          (message = `User with email ${email} already exist, try with different email`)
-        );
-      }
+      // if (checkEmail) {
+      //   throw Error(
+      //     `User with email ${email} already exist, try with different email`
+      //   );
+      // }
 
-      if (checkPhone) {
-        throw Error(
-          (message = `User with phone number ${phoneNumber} already exist, try with different phone number`)
-        );
-      }
+      // if (checkPhone) {
+      //   throw Error(
+      //     `User with phone number ${phoneNumber} already exist, try with different phone number`
+      //   );
+      // }
 
-      const saltRounds = 10;
-      let hash = bcrypt.hashSync(password, saltRounds);
-      const data = await User.create({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phoneNumber: phoneNumber,
-        address: address,
-        password: hash,
-        token: token,
-        image: image,
-        isAdmin: false,
+      const [user, created] = await User.findOrCreate({
+        where: {
+          [Op.and]: [{ email: email }, { phoneNumber: phoneNumber }],
+        },
+        default: {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          phoneNumber: phoneNumber,
+          address: address,
+          password: password,
+          token,
+          image,
+          isAdmin,
+        },
       });
 
-      // const data = await User.findOne({
-      //   where: { firstName: firstName, lastName: lastName, email: email },
-      //   attributes: attributes,
-      // });
-
-      return successResponse(
-        res,
-        201,
-        data,
-        "Success: The request was created."
-      );
-    } catch (error) {
-      if (error.errors) {
-        errorResponse(
+      if (created) {
+        return successResponse(
           res,
-          error.errors.map((err) => err.message)
+          201,
+          user,
+          "Success: The request was created."
         );
+      } else {
+        return errorResponse(res, "Already exist!");
+      }
+    } catch (error) {
+      if (error) {
+        errorResponse(res, error.message);
       } else {
         serverErrorResponse(res);
       }
@@ -92,7 +89,7 @@ class AuthUser {
     }
   }
 
-  static async postLogin(req, res) {
+  static async login(req, res) {
     const { email, password } = req.body;
     let message;
     let authToken;
@@ -120,7 +117,7 @@ class AuthUser {
     }
   }
 
-  static async deleteLogout(req, res) {}
+  static async logout(req, res) {}
 }
 
 module.exports = AuthUser;

@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -75,16 +76,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: {
         type: DataTypes.STRING,
-        allowNull: false,
-        notEmpty: true,
-        validate: {
-          notNull: {
-            msg: "address is null",
-          },
-          notEmpty: {
-            msg: "address is empty",
-          },
-        },
+        allowNull: true,
       },
       password: {
         type: DataTypes.TEXT,
@@ -101,42 +93,15 @@ module.exports = (sequelize, DataTypes) => {
       },
       token: {
         type: DataTypes.TEXT,
-        allowNull: false,
-        notEmpty: true,
-        validate: {
-          notNull: {
-            msg: "token is null",
-          },
-          notEmpty: {
-            msg: "token is empty",
-          },
-        },
+        allowNull: true,
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
-        notEmpty: true,
-        validate: {
-          notNull: {
-            msg: "role is null",
-          },
-          notEmpty: {
-            msg: "role is empty",
-          },
-        },
+        allowNull: true,
       },
       image: {
         type: DataTypes.TEXT,
-        allowNull: false,
-        notEmpty: true,
-        validate: {
-          notNull: {
-            msg: "image is null",
-          },
-          notEmpty: {
-            msg: "image is empty",
-          },
-        },
+        allowNull: true,
       },
     },
     {
@@ -144,5 +109,18 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "User",
     }
   );
+
+  User.beforeCreate((user) => {
+    user.password = bcrypt.hashSync(
+      user.password,
+      bcrypt.genSaltSync(10),
+      null
+    );
+  });
+
+  User.prototype.CorrectPassword = async (reqPassword, passwordDB) => {
+    return await bcrypt.compareSync(reqPassword, passwordDB);
+  };
+
   return User;
 };
