@@ -46,10 +46,18 @@ function methodNotAllowed(req, res, next) {
   });
 }
 
+function unauthorizedResponse(res, message = "Unauthorized, Log in first!") {
+  res.status(405).json({
+    status: "fail",
+    message,
+  });
+}
+
 module.exports = {
   successResponse,
   errorResponse,
   notfoundResponse,
   serverErrorResponse,
   methodNotAllowed,
+  unauthorizedResponse,
 };
