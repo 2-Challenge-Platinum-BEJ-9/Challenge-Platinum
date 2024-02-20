@@ -35,10 +35,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT,
       },
-      token: {
-        allowNull: true,
-        type: Sequelize.TEXT,
-      },
       isAdmin: {
         allowNull: true,
         defaultValue: false,

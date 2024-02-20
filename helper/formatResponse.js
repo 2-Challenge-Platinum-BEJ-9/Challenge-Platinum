@@ -39,15 +39,8 @@ function serverErrorResponse(res, message = "Internal Server Error") {
   });
 }
 
-function methodNotAllowed(req, res, next) {
-  res.status(405).json({
-    status: "error",
-    message: "Method not supported!",
-  });
-}
-
 function unauthorizedResponse(res, message = "Unauthorized, Log in first!") {
-  res.status(405).json({
+  res.status(401).json({
     status: "fail",
     message,
   });
@@ -58,6 +51,5 @@ module.exports = {
   errorResponse,
   notfoundResponse,
   serverErrorResponse,
-  methodNotAllowed,
   unauthorizedResponse,
 };

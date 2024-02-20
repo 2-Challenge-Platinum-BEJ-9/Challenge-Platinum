@@ -5,7 +5,8 @@ const {
   errorResponse,
   serverErrorResponse,
   unauthorizedResponse,
-} = require("../helper/fornatResponse");
+} = require("../helper/formatResponse");
+const { sign } = require("../lib/jwt");
 
 class AuthUser {
   static async register(req, res) {
@@ -98,13 +99,17 @@ class AuthUser {
         throw new Error("Already login!");
       }
 
-      let token = `${email} - ${Date.now()}`;
-      await User.update(
-        {
-          token: token,
-        },
-        { where: { email: email } }
-      );
+      let userData = {
+        id: user.dataValues.id,
+        firstName: user.dataValues.firstName,
+        lastName: user.dataValues.lastName,
+        email: user.dataValues.email,
+        phoneNumber: user.dataValues.phoneNumber,
+        address: user.dataValues.address,
+        isAdmin: user.dataValues.isAdmin,
+        image: user.dataValues.image,
+      };
+      const token = sign(userData);
 
       return successResponse(
         res,
@@ -132,16 +137,9 @@ class AuthUser {
         where: { email: email },
       });
 
-      if (!user.token) {
+      if (!user) {
         throw Error("Unauthorized!");
       }
-
-      await User.update(
-        {
-          token: null,
-        },
-        { where: { email: email } }
-      );
 
       return successResponse(res, 200, null, "Logout Success");
     } catch (error) {

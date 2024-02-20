@@ -91,10 +91,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
-      token: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
       isAdmin: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
