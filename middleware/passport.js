@@ -8,7 +8,7 @@ const option = {
 
 function decode(payload, done) {
   if (!payload.iat) {
-    done("Session habis!", null);
+    done("Session timed out!", null);
   } else {
     done(null, payload);
   }

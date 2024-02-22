@@ -6,7 +6,7 @@ const {
   serverErrorResponse,
   unauthorizedResponse,
 } = require("../helper/formatResponse");
-const { sign } = require("../lib/jwt");
+const { sign, verify } = require("../lib/jwt");
 
 class AuthUser {
   static async register(req, res) {
@@ -22,6 +22,7 @@ class AuthUser {
       isAdmin,
     } = req.body;
     let token;
+    console.log(req.body);
 
     try {
       if (password !== passwordMatch) {
@@ -46,6 +47,7 @@ class AuthUser {
       });
 
       const data = {
+        id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -95,10 +97,6 @@ class AuthUser {
         throw new Error("Incorrect email or password!");
       }
 
-      if (user.token !== null) {
-        throw new Error("Already login!");
-      }
-
       let userData = {
         id: user.dataValues.id,
         firstName: user.dataValues.firstName,
@@ -130,18 +128,14 @@ class AuthUser {
   }
 
   static async logout(req, res) {
-    let { email } = req.body;
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
 
     try {
-      const user = await User.findOne({
-        where: { email: email },
-      });
-
-      if (!user) {
+      if (!authHeader || authHeader === undefined) {
         throw Error("Unauthorized!");
       }
-
-      return successResponse(res, 200, null, "Logout Success");
+      verify(token);
     } catch (error) {
       if (error.errors) {
         return errorResponse(
@@ -154,6 +148,8 @@ class AuthUser {
         return serverErrorResponse(res);
       }
     }
+
+    return successResponse(res, 200, null, "Logout Success");
   }
 }
 
