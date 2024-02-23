@@ -4,10 +4,6 @@ const { upload } = require("../lib/multer");
 const { methodNotAllowed } = require("../middleware/methodProhibited");
 
 router.route("/register").post(AuthUser.register).all(methodNotAllowed); // endpoint /api/v1/auth/register
-router
-  .route("/register/profile-pict")
-  .post(upload.single("assets/avatar"), AuthUser.avatar)
-  .all(methodNotAllowed); // endpoint /api/v1/auth/register/profile-pict
 
 router.route("/login").post(AuthUser.login).all(methodNotAllowed); // endpoint /api/v1/auth/login
 
