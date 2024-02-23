@@ -82,6 +82,10 @@ class AuthUser {
     }
   }
 
+  static async avatar(req, res) {
+    const avatar = req.body;
+  }
+
   static async login(req, res) {
     const { email, password } = req.body;
 
