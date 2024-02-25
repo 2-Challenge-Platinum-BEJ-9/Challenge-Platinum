@@ -19,14 +19,14 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         unique: {
           args: true,
-          msg: "item is already",
+          msg: "Item already exists",
         },
         validate: {
           notNull: {
-            msg: "item name is null",
+            msg: "Name cannot be empty.",
           },
           notEmpty: {
-            msg: "item name is empty",
+            msg: "Name cannot be empty.",
           },
         },
       },
@@ -36,10 +36,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         validate: {
           notNull: {
-            msg: "item price is null",
+            msg: "Price cannot be empty.",
           },
           notEmpty: {
-            msg: "item price is empty",
+            msg: "Price cannot be empty.",
           },
         },
       },
@@ -49,10 +49,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         validate: {
           notNull: {
-            msg: "item stock is null",
+            msg: "Stock cannot be empty.",
           },
           notEmpty: {
-            msg: "item stock is empty",
+            msg: "Stock cannot be empty.",
           },
         },
       },
@@ -62,10 +62,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         validate: {
           notNull: {
-            msg: "item category is null",
+            msg: "Category cannot be empty.",
           },
           notEmpty: {
-            msg: "item category is empty",
+            msg: "Category cannot be empty.",
           },
         },
       },
@@ -75,10 +75,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         validate: {
           notNull: {
-            msg: "item image is null",
+            msg: "Image cannot be empty.",
           },
           notEmpty: {
-            msg: "item image is empty",
+            msg: "Image cannot be empty.",
           },
         },
       },
@@ -88,10 +88,10 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,
         validate: {
           notNull: {
-            msg: "item description is null",
+            msg: "Description cannot be empty.",
           },
           notEmpty: {
-            msg: "item description is empty",
+            msg: "Description cannot be empty.",
           },
         },
       },

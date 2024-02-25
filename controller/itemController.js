@@ -4,7 +4,7 @@ const {
   successResponse,
   errorResponse,
   notfoundResponse,
-} = require("../helper/fornatResponse");
+} = require("../helper/formatResponse");
 const attributes = [
   "id",
   "name",
@@ -18,8 +18,8 @@ const attributes = [
 class Items {
   static async getAllItem(req, res) {
     const {
-      page,
-      pageSize,
+      page = 1,
+      pageSize = 10,
       minPrice,
       maxPrice,
       orderBy,
@@ -36,32 +36,43 @@ class Items {
         where:
           minPrice && maxPrice
             ? {
-                price: {
-                  [Op.between]: [minPrice, maxPrice],
-                },
-              }
+              price: {
+                [Op.between]: [minPrice, maxPrice],
+              },
+            }
             : minPrice
-            ? {
+              ? {
                 price: {
                   [Op.gte]: minPrice,
                 },
               }
-            : maxPrice && {
+              : maxPrice && {
                 price: {
                   [Op.lte]: maxPrice,
                 },
               },
         ...(page &&
           pageSize && {
-            offset: (page - 1) * pageSize,
-            limit: pageSize,
-          }),
+          offset: (page - 1) * pageSize,
+          limit: pageSize,
+        }),
         ...(orderBy && { order: [[orderBy, orderType]] }),
         attributes,
       });
-      successResponse(res, items);
+
+      if (items?.length === 0) {
+        throw new Error(404)
+      }
+      successResponse(res, 200, items, "Success")
     } catch (error) {
-      errorResponse(res, error.message);
+      switch (error?.message) {
+        case "404":
+          notfoundResponse(res, "Data Not Found")
+          break;
+        default:
+          errorResponse(res, error.message);
+          break;
+      }
     }
   }
 
@@ -74,9 +85,19 @@ class Items {
         attributes,
       });
 
-      successResponse(res, item);
+      if (!item) {
+        throw new Error(404)
+      }
+      successResponse(res, 200, item, "Success")
     } catch (error) {
-      errorResponse(res, error.message);
+      switch (error?.message) {
+        case "404":
+          notfoundResponse(res, "Data Not Found")
+          break;
+        default:
+          errorResponse(res, error.message);
+          break;
+      }
     }
   }
 
@@ -87,9 +108,9 @@ class Items {
         { name, price, stock, category, description, image },
         { returning: true }
       );
-      successResponse(res, item);
+      successResponse(res, 201, item, "Created")
     } catch (error) {
-      errorResponse(res, error.message);
+      errorResponse(res, error.errors?.[0]?.message || error.message);
     }
   }
 
@@ -105,13 +126,21 @@ class Items {
           returning: attributes,
         }
       );
-      if (rowCount > 0) {
-        successResponse(res, updatedItems[0]);
-      } else {
-        notfoundResponse(res, "Item Not Found");
+
+
+      if (rowCount === 0) {
+        throw new Error(404)
       }
+      successResponse(res, 200, updatedItems[0], "Updated")
     } catch (error) {
-      errorResponse(res, error.message);
+      switch (error?.message) {
+        case "404":
+          notfoundResponse(res, "Data Not Found")
+          break;
+        default:
+          errorResponse(res, res, error.errors?.[0]?.message || error.message);
+          break;
+      }
     }
   }
 
@@ -119,10 +148,20 @@ class Items {
     const { id } = req.params;
 
     try {
-      await Item.destroy({ where: { id } });
-      successResponse(res, null);
+      const item = await Item.destroy({ where: { id } });
+      if (!item) {
+        throw new Error(404)
+      }
+      successResponse(res, 200, undefined, "Deleted")
     } catch (error) {
-      errorResponse(res, error.message);
+      switch (error?.message) {
+        case "404":
+          notfoundResponse(res, "Data Not Found")
+          break;
+        default:
+          errorResponse(res, error.message);
+          break;
+      }
     }
   }
 }
