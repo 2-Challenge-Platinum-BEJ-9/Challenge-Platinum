@@ -4,7 +4,7 @@ const {
   successResponse,
   errorResponse,
   notfoundResponse,
-} = require("../helper/fornatResponse");
+} = require("../helper/formatResponse");
 const attributes = [
   "id",
   "name",
