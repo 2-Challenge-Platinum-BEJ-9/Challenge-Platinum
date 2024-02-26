@@ -17,6 +17,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1", router);
 
+app.use((err, req, res, next) => {
+  return res.status(500).json({ message: err.message });
+});
+
 app.listen(port, () => {
   console.log(`This app running at http://localhost:${port}`);
 });
