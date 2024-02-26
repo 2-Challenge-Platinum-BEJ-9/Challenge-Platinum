@@ -25,6 +25,7 @@ class Upload {
     } catch (error) {
       result.message = error.message;
       statusCode = 500;
+      rollbackUploadCloudinary(uploadResult.public_id);
     }
 
     return res.status(statusCode).json(result);
