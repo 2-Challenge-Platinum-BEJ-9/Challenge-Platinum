@@ -4,9 +4,10 @@ const {
   successResponse,
   errorResponse,
   serverErrorResponse,
-  unauthorizedResponse,
 } = require("../helper/formatResponse");
 const { sign, verify } = require("../lib/jwt");
+const { logger } = require("../helper/logger");
+const { MyCustomError } = require("../helper/customError");
 
 class AuthUser {
   static async register(req, res) {
@@ -26,7 +27,7 @@ class AuthUser {
 
     try {
       if (password !== passwordMatch) {
-        throw new Error("Password not match!");
+        throw new MyCustomError("Password not match!");
       }
 
       const [user, created] = await User.findOrCreate({
@@ -58,6 +59,7 @@ class AuthUser {
       };
 
       if (created) {
+        logger.info(`Register Success!`);
         return successResponse(
           res,
           201,
@@ -65,30 +67,22 @@ class AuthUser {
           "Success: New User has been created."
         );
       } else {
-        return errorResponse(
-          res,
+        throw new MyCustomError(
           `email ${email} or phone number ${phoneNumber} already exist!`
         );
       }
     } catch (error) {
-      if (error.errors) {
-        errorResponse(
-          res,
-          error.errors.map((err) => err.message)
-        );
+      logger.error(error.message);
+      if (error instanceof MyCustomError) {
+        return errorResponse(res, error.message);
       } else {
-        serverErrorResponse(res, error.message);
+        return serverErrorResponse(res, error.message);
       }
     }
   }
 
-  static async avatar(req, res) {
-    const avatar = req.body;
-  }
-
   static async login(req, res) {
     const { email, password } = req.body;
-
     try {
       const user = await User.findOne({
         where: { email: email },
@@ -98,7 +92,7 @@ class AuthUser {
         user.email !== email ||
         !(await user.CorrectPassword(password, user.password))
       ) {
-        throw new Error("Incorrect email or password!");
+        throw new MyCustomError("Incorrect email or password!");
       }
 
       let userData = {
@@ -113,6 +107,7 @@ class AuthUser {
       };
       const token = sign(userData);
 
+      logger.info(`Login Success!`);
       return successResponse(
         res,
         200,
@@ -120,11 +115,9 @@ class AuthUser {
         `Welcome, ${user.firstName} ${user.lastName}`
       );
     } catch (error) {
-      if (error.errors) {
-        return errorResponse(
-          res,
-          error.errors.map((err) => err.message)
-        );
+      logger.error(error.message);
+      if (error instanceof MyCustomError) {
+        return errorResponse(res, error.message);
       } else {
         return serverErrorResponse(res, error.message);
       }
@@ -137,22 +130,19 @@ class AuthUser {
 
     try {
       if (!authHeader || authHeader === undefined) {
-        throw Error("Unauthorized!");
+        throw new MyCustomError("Unauthorized!");
       }
       verify(token);
     } catch (error) {
-      if (error.errors) {
-        return errorResponse(
-          res,
-          error.errors.map((err) => err.message)
-        );
-      } else if (Error) {
-        return unauthorizedResponse(res);
+      logger.error(error.message);
+      if (error instanceof MyCustomError) {
+        return errorResponse(res, error.message);
       } else {
-        return serverErrorResponse(res);
+        return serverErrorResponse(res, error.message);
       }
     }
 
+    logger.info(`Logout Success!`);
     return successResponse(res, 200, null, "Logout Success");
   }
 }
