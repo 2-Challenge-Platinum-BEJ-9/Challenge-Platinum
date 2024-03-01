@@ -1,6 +1,9 @@
 "use strict";
 const { Model } = require("sequelize");
+
+
 const bcrypt = require("bcrypt");
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -9,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      User.hasMany(models.Order, { foreignKey: "userId" });
     }
   }
   User.init(
@@ -76,6 +79,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: {
         type: DataTypes.STRING,
+
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "address is null",
+          },
+          notEmpty: {
+            msg: "address is empty",
+          },
+        },
+
         allowNull: true,
       },
       password: {
@@ -89,15 +104,56 @@ module.exports = (sequelize, DataTypes) => {
             args: [6, 20],
             msg: "Password must be at least 6-20 characters",
           },
+
+        },
+      },
+      token: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "token is null",
+          },
+          notEmpty: {
+            msg: "token is empty",
+          },
+
         },
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
+
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "role is null",
+          },
+          notEmpty: {
+            msg: "role is empty",
+          },
+        },
+      },
+      image: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "image is null",
+          },
+          notEmpty: {
+            msg: "image is empty",
+          },
+        },
+
         allowNull: true,
       },
       image: {
         type: DataTypes.TEXT,
         allowNull: true,
+
       },
     },
     {
@@ -105,6 +161,8 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "User",
     }
   );
+
+
 
   User.beforeCreate((user) => {
     user.password = bcrypt.hashSync(
@@ -117,6 +175,7 @@ module.exports = (sequelize, DataTypes) => {
   User.prototype.CorrectPassword = async (reqPassword, passwordDB) => {
     return await bcrypt.compareSync(reqPassword, passwordDB);
   };
+
 
   return User;
 };
