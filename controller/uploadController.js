@@ -3,6 +3,7 @@ const {
   rollbackUploadCloudinary,
 } = require("../lib/cloudinary");
 const fs = require("fs");
+const logger = require("../helper/logger");
 
 class Upload {
   static async uploadFile(req, res) {
@@ -18,16 +19,18 @@ class Upload {
 
       fs.unlink(req.file.path, (err) => {
         if (err) {
+          logger.error(err.message);
           result.message = err.message;
           statusCode = 500;
         }
       });
     } catch (error) {
+      logger.error(error.message);
       result.message = error.message;
-      statusCode = 500;
-      rollbackUploadCloudinary(uploadResult.public_id);
+      statusCode = 400;
     }
 
+    logger.info(result);
     return res.status(statusCode).json(result);
   }
 
@@ -42,7 +45,7 @@ class Upload {
         uploadResult = await uploadCloudinary(req.files[i].path);
         result.push(uploadResult);
       } catch (error) {
-        console.log(error);
+        logger.error(error.message);
         if (i > 0) {
           let arrOfPublicId = [];
           for (let j = 0; j < result.length; j++) {
@@ -60,11 +63,12 @@ class Upload {
     for (let i = 0; i < req.files.length; i++) {
       fs.unlink(req.files[i].path, (err) => {
         if (err) {
-          console.log(err);
+          logger.error(err.message);
         }
       });
     }
 
+    logger.info({ message: message, data: result });
     return res.status(statusCode).json({ message: message, data: result });
   }
 }
