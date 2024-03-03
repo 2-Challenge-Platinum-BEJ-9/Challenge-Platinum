@@ -22,8 +22,6 @@ class AuthUser {
       image,
       isAdmin,
     } = req.body;
-    let token;
-    console.log(req.body);
 
     try {
       if (password !== passwordMatch) {
@@ -41,7 +39,6 @@ class AuthUser {
           phoneNumber: phoneNumber,
           address: address,
           password: password,
-          token,
           image: image,
           isAdmin: isAdmin,
         },
@@ -147,4 +144,4 @@ class AuthUser {
   }
 }
 
-module.exports = AuthUser;
+module.exports = { AuthUser };
