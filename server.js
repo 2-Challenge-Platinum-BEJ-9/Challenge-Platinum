@@ -1,4 +1,4 @@
-const { app } = require("./main");
+const app = require("./main");
 const port = 3000;
 
 app.listen(port, () => {

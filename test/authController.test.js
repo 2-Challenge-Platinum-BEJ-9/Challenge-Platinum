@@ -1,6 +1,10 @@
-const { AuthUser } = require("../controller/authController");
+const supertest = require("supertest");
+const app = require("../main.js");
+const { AuthUser } = require("../controller/authController.js");
+jest.mock("../controller/authController.js");
+AuthUser.save = jest.fn().mockResolvedValue({});
 
-const mockRequest = (body = {}, params = {}, query = {}) => {
+const mockReq = (body = {}, params = {}, query = {}) => {
   return {
     body: body,
     params: params,
@@ -8,48 +12,45 @@ const mockRequest = (body = {}, params = {}, query = {}) => {
   };
 };
 
-const mockResponse = () => {
+const mockRes = () => {
   const res = {};
+
   res.json = jest.fn().mockReturnValue(res);
   res.status = jest.fn().mockReturnValue(res);
 
   return res;
 };
 
-describe("authController.js register function", () => {
-  test(`res.json called with {
-        status: 'success', 
-        data: {
-            id: id, 
-            firstName: firstName, 
-            lastName: lastName, 
-            email: email, 
-            phoneNumber: phoneNumber,
-            address: address,
-            image: image,
-            isAdmin: isAdmin
-        }
-        message: 'Success: New User has been created.'
-    }`, (done) => {
-    const req = mockRequest();
-    const res = mockResponse();
+describe("Test Register", () => {
+  test("Must return status 201 and json", (done) => {
+    const req = mockReq({
+      firstName: "Prananda",
+      lastName: "Yoga",
+      email: "pranandayoga1@gmail.com",
+      phoneNumber: "081337802381",
+      address: "Badung, Bali",
+      password: "prananda23",
+      passwordMatch: "prananda23",
+    });
+    const res = mockRes();
 
-    AuthUser.register();
+    AuthUser.register(req, res);
 
-    expect(res.status).toBeCalledWith(200);
+    expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith({
       status: "success",
       data: {
-        id: "1",
+        id: expect.any(String),
         firstName: "Prananda",
         lastName: "Yoga",
-        email: "pranandayoga@gmail.com",
-        phoneNumber: "081337802380",
+        email: "pranandayoga1@gmail.com",
+        phoneNumber: "081337802381",
         address: "Badung, Bali",
         image: null,
         isAdmin: false,
       },
       message: "Success: New User has been created.",
     });
+    done();
   });
 });
