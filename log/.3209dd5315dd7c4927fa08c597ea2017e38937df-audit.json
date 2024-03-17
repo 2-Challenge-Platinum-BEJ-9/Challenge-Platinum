@@ -6,11 +6,6 @@
     "auditLog": "log\\.3209dd5315dd7c4927fa08c597ea2017e38937df-audit.json",
     "files": [
         {
-            "date": 1709225564694,
-            "name": "log\\app-exception-2024-03-01.log",
-            "hash": "dafe6eeb5598d9d877a42287407b29fe1db420226f57a5bb5f23ff8fea92bfd1"
-        },
-        {
             "date": 1709475613923,
             "name": "log\\app-exception-2024-03-03.log",
             "hash": "236bd57b9103e8f205a9539930dfd7d96dad259a51ccdedb67b562f5236a38f5"
@@ -19,6 +14,56 @@
             "date": 1709535112528,
             "name": "log\\app-exception-2024-03-04.log",
             "hash": "48c01ba2b38caa8958fc32219366c752c34485f6933fa6214f6d1948b776b80c"
+        },
+        {
+            "date": 1709900332477,
+            "name": "log\\app-exception-2024-03-08.log",
+            "hash": "69c54bdb5be10b366092b79efd58aea6b750c42f189d0cac7d9aa1a86f6714ad"
+        },
+        {
+            "date": 1709963204278,
+            "name": "log\\app-exception-2024-03-09.log",
+            "hash": "83fb9c1294b3bb9f1677f41717cb7c14e50ba29c82369dfa5ea9adfcf2f4ea5a"
+        },
+        {
+            "date": 1710052684910,
+            "name": "log\\app-exception-2024-03-10.log",
+            "hash": "c383be56d2ec8203c27642066b965b9ff98a137c1a4e114f600ffa04a131ca9f"
+        },
+        {
+            "date": 1710131979283,
+            "name": "log\\app-exception-2024-03-11.log",
+            "hash": "c3328851b0999c919f74fead55a3df348907ca6656ce1f695e7e613de35b2b61"
+        },
+        {
+            "date": 1710220377363,
+            "name": "log\\app-exception-2024-03-12.log",
+            "hash": "ba6b869c78940d5cb28cccab72ff0e3b23e311966035aea1db381164c3c5ded5"
+        },
+        {
+            "date": 1710305990778,
+            "name": "log\\app-exception-2024-03-13.log",
+            "hash": "d0e204a8494b94880c0a2b873ec922a85f195b3651baa4a2232f7cbe468b4980"
+        },
+        {
+            "date": 1710417783390,
+            "name": "log\\app-exception-2024-03-14.log",
+            "hash": "ef9f99b33d430c62245913257086831dab6556d70b6fb171b8a4ee11b446e225"
+        },
+        {
+            "date": 1710511184261,
+            "name": "log\\app-exception-2024-03-15.log",
+            "hash": "c707f832bbda02813ee77b18b45c6316e75f09abcd587e39b2b7010f94de2357"
+        },
+        {
+            "date": 1710597648999,
+            "name": "log\\app-exception-2024-03-16.log",
+            "hash": "e4afa52b2d82c58799fdab9c081038ae5e52dee167ff2dc162c120b06fc25df0"
+        },
+        {
+            "date": 1710606666647,
+            "name": "log\\app-exception-2024-03-17.log",
+            "hash": "898588395ea164f01f5b1e4d3127e0d2234157381c707272d687a563cab8d821"
         }
     ],
     "hashType": "sha256"

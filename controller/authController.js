@@ -1,5 +1,5 @@
 const { User } = require("../models");
-const { Op } = require("sequelize");
+const { Op, ValidationError } = require("sequelize");
 const {
   successResponse,
   errorResponse,
@@ -25,23 +25,28 @@ class AuthUser {
 
     try {
       if (password !== passwordMatch) {
-        throw new MyCustomError("Password not match!");
+        return errorResponse(res, "Password not match!");
       }
 
-      const [user, created] = await User.findOrCreate({
-        where: {
-          [Op.and]: [{ email: email }, { phoneNumber: phoneNumber }],
-        },
-        defaults: {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          phoneNumber: phoneNumber,
-          address: address,
-          password: password,
-          image: image,
-          isAdmin: isAdmin,
-        },
+      const existingEmail = await User.findOne({ where: { email: email } });
+      const existingPhoneNumber = await User.findOne({
+        where: { phoneNumber: phoneNumber },
+      });
+
+      if (existingEmail || existingPhoneNumber) {
+        return errorResponse(res, "User already exist");
+      }
+
+      const user = await User.create({
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+        address: address,
+        password: password,
+        image: image,
+        isAdmin: isAdmin,
       });
 
       const data = {
@@ -55,23 +60,21 @@ class AuthUser {
         isAdmin: user.isAdmin,
       };
 
-      if (created) {
-        logger.info(`Register Success!`);
-        return successResponse(
-          res,
-          201,
-          data,
-          "Success: New User has been created."
-        );
-      } else {
-        throw new MyCustomError(
-          `email ${email} or phone number ${phoneNumber} already exist!`
-        );
-      }
+      logger.info(`Register Success!`);
+      return successResponse(
+        res,
+        201,
+        data,
+        "Success: New User has been created."
+      );
     } catch (error) {
       logger.error(error.message);
-      if (error instanceof MyCustomError) {
-        return errorResponse(res, error.message);
+      if (error instanceof ValidationError) {
+        const errors = error.errors.map((error) => ({
+          path: error.path,
+          message: error.message,
+        }));
+        return errorResponse(res, errors, "Validation error occured");
       } else {
         return serverErrorResponse(res, error.message);
       }
@@ -80,6 +83,7 @@ class AuthUser {
 
   static async login(req, res) {
     const { email, password } = req.body;
+
     try {
       const user = await User.findOne({
         where: { email: email },
@@ -89,7 +93,7 @@ class AuthUser {
         user.email !== email ||
         !(await user.CorrectPassword(password, user.password))
       ) {
-        throw new MyCustomError("Incorrect email or password!");
+        throw new Error(400);
       }
 
       let userData = {
@@ -123,16 +127,16 @@ class AuthUser {
 
   static async logout(req, res) {
     const authHeader = req.headers.authorization;
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(" ");
 
     try {
-      if (!authHeader || authHeader === undefined) {
-        throw new MyCustomError("Unauthorized!");
+      if (!authHeader[1] || authHeader[1] === undefined) {
+        throw new Error(400);
       }
-      verify(token);
+      verify(token[1]);
     } catch (error) {
       logger.error(error.message);
-      if (error instanceof MyCustomError) {
+      if (400) {
         return errorResponse(res, error.message);
       } else {
         return serverErrorResponse(res, error.message);
