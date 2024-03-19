@@ -66,36 +66,63 @@ const mockUserNull = {
 };
 
 const mockValidationError = [
+  new ValidationErrorItem(
+    "first name is empty",
+    `validation error`,
+    "firstName"
+  ),
+  new ValidationErrorItem("email is empty", `validation error`, "email"),
+  new ValidationErrorItem(
+    "Incorrect email format",
+    `validation error`,
+    "email"
+  ),
+  new ValidationErrorItem(
+    "Phone Number is empty",
+    `validation error`,
+    "phoneNumber"
+  ),
+  new ValidationErrorItem("address is empty", `validation error`, "address"),
+  new ValidationErrorItem("Password is empty", `validation error`, "password"),
+  new ValidationErrorItem(
+    "Password must be at least 6-20 characters",
+    `validation error`,
+    "password"
+  ),
+  new ValidationErrorItem("image is empty", `validation error`, "image"),
+];
+
+const expectedValidationError = [
   {
-    field: "firstName",
+    path: "firstName",
     message: "first name is empty",
   },
   {
-    field: "email",
+    path: "email",
     message: "email is empty",
   },
   {
-    field: "email",
+    path: "email",
     message: "Incorrect email format",
   },
   {
-    field: "phoneNumber",
+    path: "phoneNumber",
     message: "Phone Number is empty",
   },
   {
-    field: "address",
+    path: "address",
     message: "address is empty",
   },
   {
-    field: "password",
+    path: "password",
     message: "Password is empty",
   },
   {
-    field: "password",
+    path: "password",
     message: "Password must be at least 6-20 characters",
   },
   {
-    field: "image",
+    path: "image",
     message: "image is empty",
   },
 ];
@@ -161,48 +188,7 @@ describe("Auth Controller", () => {
       User.findOne.mockReturnValue(null);
       User.create.mockReturnValue(
         Promise.reject(
-          new ValidationError("Validation error occured", [
-            new ValidationErrorItem(
-              "first name is empty",
-              `validation error`,
-              "firstName"
-            ),
-            new ValidationErrorItem(
-              "email is empty",
-              `validation error`,
-              "email"
-            ),
-            new ValidationErrorItem(
-              "Incorrect email format",
-              `validation error`,
-              "email"
-            ),
-            new ValidationErrorItem(
-              "Phone Number is empty",
-              `validation error`,
-              "phoneNumber"
-            ),
-            new ValidationErrorItem(
-              "address is empty",
-              `validation error`,
-              "address"
-            ),
-            new ValidationErrorItem(
-              "Password is empty",
-              `validation error`,
-              "password"
-            ),
-            new ValidationErrorItem(
-              "Password must be at least 6-20 characters",
-              `validation error`,
-              "password"
-            ),
-            new ValidationErrorItem(
-              "image is empty",
-              `validation error`,
-              "image"
-            ),
-          ])
+          new ValidationError("Validation error occured", mockValidationError)
         )
       );
 
@@ -211,40 +197,7 @@ describe("Auth Controller", () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         status: "fail",
-        errors: [
-          {
-            path: "firstName",
-            message: "first name is empty",
-          },
-          {
-            path: "email",
-            message: "email is empty",
-          },
-          {
-            path: "email",
-            message: "Incorrect email format",
-          },
-          {
-            path: "phoneNumber",
-            message: "Phone Number is empty",
-          },
-          {
-            path: "address",
-            message: "address is empty",
-          },
-          {
-            path: "password",
-            message: "Password is empty",
-          },
-          {
-            path: "password",
-            message: "Password must be at least 6-20 characters",
-          },
-          {
-            path: "image",
-            message: "image is empty",
-          },
-        ],
+        errors: expectedValidationError,
         message: "Validation error occured",
       });
     });

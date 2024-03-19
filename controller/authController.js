@@ -4,6 +4,7 @@ const {
   successResponse,
   errorResponse,
   serverErrorResponse,
+  unauthorizedResponse,
 } = require("../helper/formatResponse");
 const { sign, verify } = require("../lib/jwt");
 const { logger } = require("../helper/logger");
@@ -89,11 +90,13 @@ class AuthUser {
         where: { email: email },
       });
 
-      if (
-        user.email !== email ||
-        !(await user.CorrectPassword(password, user.password))
-      ) {
-        throw new Error(400);
+      if (!user) {
+        return errorResponse(res, "User not found!");
+      }
+
+      const checkPass = await user.CorrectPassword(password, user.password);
+      if (!checkPass) {
+        return errorResponse(res, "Wrong password!");
       }
 
       let userData = {
@@ -107,7 +110,6 @@ class AuthUser {
         image: user.dataValues.image,
       };
       const token = sign(userData);
-
       logger.info(`Login Success!`);
       return successResponse(
         res,
@@ -117,30 +119,21 @@ class AuthUser {
       );
     } catch (error) {
       logger.error(error.message);
-      if (error instanceof MyCustomError) {
-        return errorResponse(res, error.message);
-      } else {
-        return serverErrorResponse(res, error.message);
-      }
+      return serverErrorResponse(res, error.message);
     }
   }
 
   static async logout(req, res) {
-    const authHeader = req.headers.authorization;
-    const token = authHeader.split(" ");
-
     try {
-      if (!authHeader[1] || authHeader[1] === undefined) {
-        throw new Error(400);
+      const token = req.headers.authorization?.split(" ")[1];
+
+      if (!token || token === undefined) {
+        return unauthorizedResponse(res);
       }
-      verify(token[1]);
+      verify(token);
     } catch (error) {
       logger.error(error.message);
-      if (400) {
-        return errorResponse(res, error.message);
-      } else {
-        return serverErrorResponse(res, error.message);
-      }
+      return serverErrorResponse(res, error.message);
     }
 
     logger.info(`Logout Success!`);
