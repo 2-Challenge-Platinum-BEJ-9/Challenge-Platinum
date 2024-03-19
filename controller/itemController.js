@@ -36,38 +36,38 @@ class Items {
         where:
           minPrice && maxPrice
             ? {
-              price: {
-                [Op.between]: [minPrice, maxPrice],
-              },
-            }
+                price: {
+                  [Op.between]: [minPrice, maxPrice],
+                },
+              }
             : minPrice
-              ? {
+            ? {
                 price: {
                   [Op.gte]: minPrice,
                 },
               }
-              : maxPrice && {
+            : maxPrice && {
                 price: {
                   [Op.lte]: maxPrice,
                 },
               },
         ...(page &&
           pageSize && {
-          offset: (page - 1) * pageSize,
-          limit: pageSize,
-        }),
+            offset: (page - 1) * pageSize,
+            limit: pageSize,
+          }),
         ...(orderBy && { order: [[orderBy, orderType]] }),
         attributes,
       });
 
       if (items?.length === 0) {
-        throw new Error(404)
+        throw new Error(404);
       }
-      successResponse(res, 200, items, "Success")
+      successResponse(res, 200, items, "Success");
     } catch (error) {
       switch (error?.message) {
         case "404":
-          notfoundResponse(res, "Data Not Found")
+          notfoundResponse(res, "Data Not Found");
           break;
         default:
           errorResponse(res, error.message);
@@ -86,13 +86,13 @@ class Items {
       });
 
       if (!item) {
-        throw new Error(404)
+        throw new Error(404);
       }
-      successResponse(res, 200, item, "Success")
+      successResponse(res, 200, item, "Success");
     } catch (error) {
       switch (error?.message) {
         case "404":
-          notfoundResponse(res, "Data Not Found")
+          notfoundResponse(res, "Data Not Found");
           break;
         default:
           errorResponse(res, error.message);
@@ -108,7 +108,7 @@ class Items {
         { name, price, stock, category, description, image },
         { returning: true }
       );
-      successResponse(res, 201, item, "Created")
+      successResponse(res, 201, item, "Created");
     } catch (error) {
       errorResponse(res, error.errors?.[0]?.message || error.message);
     }
@@ -127,18 +127,17 @@ class Items {
         }
       );
 
-
       if (rowCount === 0) {
-        throw new Error(404)
+        throw new Error(404);
       }
-      successResponse(res, 200, updatedItems[0], "Updated")
+      successResponse(res, 200, updatedItems[0], "Updated");
     } catch (error) {
       switch (error?.message) {
         case "404":
-          notfoundResponse(res, "Data Not Found")
+          notfoundResponse(res, "Data Not Found");
           break;
         default:
-          errorResponse(res, res, error.errors?.[0]?.message || error.message);
+          errorResponse(res, error.errors?.[0]?.message || error.message);
           break;
       }
     }
@@ -150,13 +149,13 @@ class Items {
     try {
       const item = await Item.destroy({ where: { id } });
       if (!item) {
-        throw new Error(404)
+        throw new Error(404);
       }
-      successResponse(res, 200, undefined, "Deleted")
+      successResponse(res, 200, undefined, "Deleted");
     } catch (error) {
       switch (error?.message) {
         case "404":
-          notfoundResponse(res, "Data Not Found")
+          notfoundResponse(res, "Data Not Found");
           break;
         default:
           errorResponse(res, error.message);
