@@ -3,7 +3,6 @@ const {
   successResponse,
   errorResponse,
   notfoundResponse,
-  serverErrorResponse,
 } = require("../helper/formatResponse");
 const item = require("../models/item");
 
