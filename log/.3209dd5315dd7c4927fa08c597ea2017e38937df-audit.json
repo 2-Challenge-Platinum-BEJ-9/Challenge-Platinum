@@ -64,6 +64,11 @@
             "date": 1710794608927,
             "name": "log\\app-exception-2024-03-19.log",
             "hash": "5ee27a8ca68d0b7059217e7b019dd1f3d5160156455a335368d1bec567de29d0"
+        },
+        {
+            "date": 1710928053934,
+            "name": "log\\app-exception-2024-03-20.log",
+            "hash": "076c914f89a3164f7aa0cb8d930ae2fae8f0735d876520a86e8687f64d402f0d"
         }
     ],
     "hashType": "sha256"
