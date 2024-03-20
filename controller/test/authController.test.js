@@ -1,1 +1,0 @@
-const { AuthUser } = require("../authController");

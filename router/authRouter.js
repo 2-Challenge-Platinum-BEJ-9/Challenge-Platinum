@@ -1,6 +1,5 @@
 const router = require("express").Router();
-const AuthUser = require("../controller/authController");
-const { upload } = require("../lib/multer");
+const { AuthUser } = require("../controller/authController");
 const { methodNotAllowed } = require("../middleware/methodProhibited");
 
 router.route("/register").post(AuthUser.register).all(methodNotAllowed); // endpoint /api/v1/auth/register

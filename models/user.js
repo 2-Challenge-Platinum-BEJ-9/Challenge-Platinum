@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         validate: {
           notNull: {
-            msg: "Email is null",
+            msg: "phone number is null",
           },
           notEmpty: {
             msg: "Phone Number is empty",
@@ -78,7 +78,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: {
         type: DataTypes.STRING,
-
         allowNull: false,
         notEmpty: true,
         validate: {
@@ -93,7 +92,11 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.TEXT,
         allowNull: false,
+        notEmpty: true,
         validate: {
+          notEmpty: {
+            msg: "Password is empty",
+          },
           notNull: {
             msg: "Password is null",
           },
@@ -105,54 +108,38 @@ module.exports = (sequelize, DataTypes) => {
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
-
         allowNull: false,
-        notEmpty: true,
+        defaultValue: false,
         validate: {
           notNull: {
-            msg: "role is null",
-          },
-          notEmpty: {
-            msg: "role is empty",
+            msg: "isAdmin is null",
           },
         },
       },
       image: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
         notEmpty: true,
         validate: {
-          notNull: {
-            msg: "image is null",
-          },
           notEmpty: {
             msg: "image is empty",
           },
         },
-
-        allowNull: true,
-      },
-      image: {
-        type: DataTypes.TEXT,
-        allowNull: true,
       },
     },
     {
       sequelize,
       modelName: "User",
+      tableName: "Users",
     }
   );
 
-  User.beforeCreate((user) => {
-    user.password = bcrypt.hashSync(
-      user.password,
-      bcrypt.genSaltSync(10),
-      null
-    );
+  User.addHook("beforeCreate", async (user) => {
+    user.password = await bcrypt.hash(user.password, bcrypt.genSaltSync(10));
   });
 
   User.prototype.CorrectPassword = async (reqPassword, passwordDB) => {
-    return await bcrypt.compareSync(reqPassword, passwordDB);
+    return bcrypt.compare(reqPassword, passwordDB);
   };
 
   return User;
