@@ -133,7 +133,7 @@ describe("Auth Controller", () => {
   });
 
   describe("Unit Testing - register()", () => {
-    it("Must return status 500 Internal Server Error", async () => {
+    it("Should return status 500 and error message", async () => {
       const req = mockReq(mockUserDb);
       const res = mockRes();
 
@@ -149,7 +149,7 @@ describe("Auth Controller", () => {
       });
     });
 
-    it("Must return status 400 Bad Request - user already exist", async () => {
+    it("Should return status 400, errors and message (user already exist)", async () => {
       const req = mockReq(mockUserDb);
       const res = mockRes();
 
@@ -165,7 +165,7 @@ describe("Auth Controller", () => {
       });
     });
 
-    it("Must return 400 Bad Request - password & passwordMatch not match", async () => {
+    it("Should return status 400, errors and message (password not matched)", async () => {
       const req = mockReq(mockUserDifPass);
       const res = mockRes();
 
@@ -181,7 +181,7 @@ describe("Auth Controller", () => {
       });
     });
 
-    it("Must return 400 Bad Request - Validation Error", async () => {
+    it("Should return status 400, errors and message (validation error)", async () => {
       const req = mockReq(mockUserNull);
       const res = mockRes();
 
@@ -202,7 +202,7 @@ describe("Auth Controller", () => {
       });
     });
 
-    it("Must return status 201 Created", async () => {
+    it("Should return status 201, data and message", async () => {
       const req = mockReq(mockUserDb);
       const res = mockRes();
 

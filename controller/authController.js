@@ -7,7 +7,7 @@ const {
   unauthorizedResponse,
 } = require("../helper/formatResponse");
 const { sign, verify } = require("../lib/jwt");
-const { logger } = require("../helper/logger");
+const logger = require("../helper/logger");
 const { MyCustomError } = require("../helper/customError");
 
 class AuthUser {

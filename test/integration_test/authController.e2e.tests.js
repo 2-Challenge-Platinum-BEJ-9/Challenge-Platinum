@@ -1,6 +1,5 @@
 const request = require("supertest");
 const app = require("../../main.js");
-const model = require("../../models/index.js");
 const { flushTable } = require("../testhelper.js");
 
 const user = {
@@ -80,7 +79,7 @@ describe("Integration testing - authController", () => {
   });
 
   describe("Integration Testing - POST /register", () => {
-    it("Return status 201 and JSON format that contain data and message 'Success: New User has been created.'", async () => {
+    it("Should return status 201, data and message", async () => {
       await request(app)
         .post("/api/v1/auth/register")
         .send(user)
@@ -94,7 +93,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 400 and JSON format that contain errors: `Password not match!` and message: `Bad request. Please check your input`", async () => {
+    it("Should return status 400, errors and message (password not match)", async () => {
       await request(app)
         .post("/api/v1/auth/register")
         .send(userPassNotMatch)
@@ -109,7 +108,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 400 and JSON format that contain errors: `User already exist` and message: `Bad request. Please check your input`", async () => {
+    it("Should return status 400, errors and message (user already exist)", async () => {
       await request(app)
         .post("/api/v1/auth/register")
         .send(user)
@@ -124,7 +123,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 400 and JSON format that contain errors: `User already exist` and message: `Validation error occured`", async () => {
+    it("Should return status 400, errors and message (validation error)", async () => {
       await request(app)
         .post("/api/v1/auth/register")
         .send(userEmpty)
@@ -137,7 +136,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 500 and JSON format that contain message: WHERE parameter `email` has invalid `undefined` value", async () => {
+    it("Should return status 500 and error message", async () => {
       await request(app)
         .post("/api/v1/auth/register")
         .send(null)
@@ -152,7 +151,7 @@ describe("Integration testing - authController", () => {
   });
 
   describe("Integration Testing - POST /login", () => {
-    it("Return status 200 and JSON format that contain token and message `Welcome, ${user.firstName} ${user.lastName}`", async () => {
+    it("Should return status 200, token and message", async () => {
       await request(app)
         .post("/api/v1/auth/login")
         .send({ email: "pranandayoga3@gmail.com", password: "prananda23" })
@@ -166,7 +165,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 400 and JSON format that contain errors `User not found!` and message `Bad request. Please check your input`", async () => {
+    it("Should return status 400, errors and message", async () => {
       await request(app)
         .post("/api/v1/auth/login")
         .send({ email: "pranandayoga2@gmail.com", password: "prananda21" })
@@ -183,7 +182,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 400 and JSON format that contain errors `Wrong password!` and message `Bad request. Please check your input`", async () => {
+    it("Should return status 400, errors and message", async () => {
       await request(app)
         .post("/api/v1/auth/login")
         .send({ email: "pranandayoga3@gmail.com", password: "prananda21" })
@@ -200,7 +199,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 500 and JSON format that contain message `Bad request. Please check your input`", async () => {
+    it("Should return status 500 and error message", async () => {
       await request(app)
         .post("/api/v1/auth/login")
         .send({})
@@ -215,14 +214,13 @@ describe("Integration testing - authController", () => {
   });
 
   describe("Integration Testing - POST /logout", () => {
-    it("Return status 200 and JSON format that contain message 'Logout Success'", async () => {
+    it("Should return status 200 and message", async () => {
       await request(app)
         .post("/api/v1/auth/logout")
         .set(
           "Authorization",
           "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZmlyc3ROYW1lIjoiUHJhbmFuZGEiLCJsYXN0TmFtZSI6IllvZ2EiLCJlbWFpbCI6InByYW5hbmRheW9nYTNAZ21haWwuY29tIiwicGhvbmVOdW1iZXIiOiIwODEzMzc4MDIzODciLCJhZGRyZXNzIjoiQmFkdW5nLCBCYWxpIiwiaXNBZG1pbiI6ZmFsc2UsImltYWdlIjpudWxsLCJpYXQiOjE3MTA2OTEyMDgsImV4cCI6MTcxMDcwMjAwOH0.EGjbljLxh1Gb0VHDCn6jkshGl0fwV4UmLFOgJD7bls8"
         )
-
         .then((res) => {
           expect(res.status).toBe(200);
           expect(res.body).toHaveProperty("message");
@@ -230,7 +228,7 @@ describe("Integration testing - authController", () => {
         });
     });
 
-    it("Return status 401 and JSON format that contain message 'Unauthorized, Log in first!'", async () => {
+    it("Should return status 401 and message", async () => {
       await request(app)
         .post("/api/v1/auth/logout")
         .set("Authorization", null)

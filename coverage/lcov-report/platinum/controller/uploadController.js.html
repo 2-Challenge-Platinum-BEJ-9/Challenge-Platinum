@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.09% </span>
+                <span class="strong">11.36% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/44</span>
+                <span class='fraction'>5/44</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.75% </span>
+                <span class="strong">12.19% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/41</span>
+                <span class='fraction'>5/41</span>
             </div>
         
             
@@ -139,7 +139,16 @@
 <a name='L74'></a><a href='#L74'>74</a>
 <a name='L75'></a><a href='#L75'>75</a>
 <a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -151,22 +160,19 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,36 +225,39 @@
   uploadCloudinary,
   rollbackUploadCloudinary,
 } = require("../lib/cloudinary");
+const {
+  successResponse,
+  errorResponse,
+  serverErrorResponse,
+  unauthorizedResponse,
+} = require("../helper/formatResponse");
 const fs = require("fs");
 const logger = require("../helper/logger");
 &nbsp;
 class Upload {
 <span class="fstat-no" title="function not covered" >  st</span>atic async uploadFile(req, res) {
     let statusCode = <span class="cstat-no" title="statement not covered" >201;</span>
-    let result = <span class="cstat-no" title="statement not covered" >{</span>
-      message: "Success",
-      data: null,
-    };
+    let data = <span class="cstat-no" title="statement not covered" >null;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      console.log(req.file);</span>
       let uploadResult = <span class="cstat-no" title="statement not covered" >await uploadCloudinary(req.file.path);</span>
-<span class="cstat-no" title="statement not covered" >      result.data = uploadResult;</span>
+<span class="cstat-no" title="statement not covered" >      data = uploadResult;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      fs.unlink(req.file.path, <span class="fstat-no" title="function not covered" >(e</span>rr) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        if (err) {</span>
 <span class="cstat-no" title="statement not covered" >          logger.error(err.message);</span>
-<span class="cstat-no" title="statement not covered" >          result.message = err.message;</span>
-<span class="cstat-no" title="statement not covered" >          statusCode = 500;</span>
+<span class="cstat-no" title="statement not covered" >          return serverErrorResponse(res, err.message);</span>
         }
       });
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      logger.error(error.message);</span>
-<span class="cstat-no" title="statement not covered" >      result.message = error.message;</span>
-<span class="cstat-no" title="statement not covered" >      statusCode = 400;</span>
+      // logger.error(error.message);
+<span class="cstat-no" title="statement not covered" >      console.log(error.message);</span>
+<span class="cstat-no" title="statement not covered" >      return errorResponse(res, error.message);</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    logger.info(result);</span>
-<span class="cstat-no" title="statement not covered" >    return res.status(statusCode).json(result);</span>
+<span class="cstat-no" title="statement not covered" >    logger.info(data);</span>
+<span class="cstat-no" title="statement not covered" >    return successResponse(res, statusCode, data);</span>
   }
 &nbsp;
 <span class="fstat-no" title="function not covered" >  st</span>atic async uploadMultipleFiles(req, res) {
@@ -298,7 +307,7 @@ module.exports = { Upload };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-20T13:10:43.787Z
+                at 2024-03-21T14:57:42.545Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

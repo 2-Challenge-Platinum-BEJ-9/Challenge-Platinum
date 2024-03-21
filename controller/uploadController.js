@@ -2,36 +2,39 @@ const {
   uploadCloudinary,
   rollbackUploadCloudinary,
 } = require("../lib/cloudinary");
+const {
+  successResponse,
+  errorResponse,
+  serverErrorResponse,
+  unauthorizedResponse,
+} = require("../helper/formatResponse");
 const fs = require("fs");
 const logger = require("../helper/logger");
 
 class Upload {
   static async uploadFile(req, res) {
     let statusCode = 201;
-    let result = {
-      message: "Success",
-      data: null,
-    };
+    let data = null;
 
     try {
+      console.log(req.file);
       let uploadResult = await uploadCloudinary(req.file.path);
-      result.data = uploadResult;
+      data = uploadResult;
 
       fs.unlink(req.file.path, (err) => {
         if (err) {
           logger.error(err.message);
-          result.message = err.message;
-          statusCode = 500;
+          return serverErrorResponse(res, err.message);
         }
       });
     } catch (error) {
-      logger.error(error.message);
-      result.message = error.message;
-      statusCode = 400;
+      // logger.error(error.message);
+      console.log(error.message);
+      return errorResponse(res, error.message);
     }
 
-    logger.info(result);
-    return res.status(statusCode).json(result);
+    logger.info(data);
+    return successResponse(res, statusCode, data);
   }
 
   static async uploadMultipleFiles(req, res) {
