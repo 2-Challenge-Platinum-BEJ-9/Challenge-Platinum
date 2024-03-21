@@ -34,14 +34,15 @@ class Orders {
     const { userId, itemId, qty } = req.body;
     try {
       sequelize.transaction(async (t) => {
-        const item = await Item.findByPk(userId, { transaction: t });
+        const user = await User.findByPk(userId, { transaction: t });
+        if (!user) {
+          return notfoundResponse(res, "Users not found");
+        }
+        const item = await Item.findByPk(itemId, { transaction: t });
         if (!item) {
           return notfoundResponse(res, "Items not found");
         }
-        const user = await User.findByPk(itemId, { transaction: t });
-        if (!user) {
-          return notfoundResponse(res, "Users not found  not found");
-        }
+
         if (qty > item.qty) {
           const data = await Order.create(
             {
