@@ -1,7 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
 
-
 const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
@@ -90,8 +89,6 @@ module.exports = (sequelize, DataTypes) => {
             msg: "address is empty",
           },
         },
-
-        allowNull: true,
       },
       password: {
         type: DataTypes.TEXT,
@@ -104,7 +101,6 @@ module.exports = (sequelize, DataTypes) => {
             args: [6, 20],
             msg: "Password must be at least 6-20 characters",
           },
-
         },
       },
       token: {
@@ -118,7 +114,6 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: {
             msg: "token is empty",
           },
-
         },
       },
       isAdmin: {
@@ -153,7 +148,6 @@ module.exports = (sequelize, DataTypes) => {
       image: {
         type: DataTypes.TEXT,
         allowNull: true,
-
       },
     },
     {
@@ -162,20 +156,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-
-
   User.beforeCreate((user) => {
-    user.password = bcrypt.hashSync(
-      user.password,
-      bcrypt.genSaltSync(10),
-      null
-    );
+    user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10), null);
   });
 
   User.prototype.CorrectPassword = async (reqPassword, passwordDB) => {
     return await bcrypt.compareSync(reqPassword, passwordDB);
   };
-
 
   return User;
 };

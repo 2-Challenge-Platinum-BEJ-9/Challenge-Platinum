@@ -1,10 +1,5 @@
-const { Order, Item, sequelize } = require("../models");
-const {
-  successResponse,
-  errorResponse,
-  notfoundResponse,
-  serverErrorResponse,
-} = require("../helper/fornatResponse");
+const { Order, Item, sequelize, User } = require("../models");
+const { successResponse, errorResponse, notfoundResponse, serverErrorResponse } = require("../helper/formatResponse");
 const item = require("../models/item");
 
 class Orders {
@@ -43,7 +38,7 @@ class Orders {
         if (!item) {
           return notfoundResponse(res, "Items not found");
         }
-        const user = await UserActivation.findByPk(itemId, { transaction: t });
+        const user = await User.findByPk(itemId, { transaction: t });
         if (!user) {
           return notfoundResponse(res, "Users not found  not found");
         }
@@ -82,10 +77,7 @@ class Orders {
         if (!data) {
           return notfoundResponse(res, "Order not found");
         } else {
-          const updatedOrder = await Order.update(
-            { status, itemId, qty },
-            { where: { id: itemId }, transaction: t }
-          );
+          const updatedOrder = await Order.update({ status, itemId, qty }, { where: { id: itemId }, transaction: t });
           successResponse(res, updatedOrder, "Order updated");
         }
       });
