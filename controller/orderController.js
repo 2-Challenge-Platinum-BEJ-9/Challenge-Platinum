@@ -1,6 +1,5 @@
-const { Order, Item, sequelize, User } = require("../models");
+const { Order, Item, User } = require("../models");
 const { successResponse, errorResponse, notfoundResponse, serverErrorResponse } = require("../helper/formatResponse");
-const item = require("../models/item");
 
 class Orders {
   static getAllOrders = async (req, res) => {
@@ -10,9 +9,9 @@ class Orders {
       if (!data || data.length === 0) {
         return notfoundResponse(res, "Database empty");
       }
-      successResponse(res, data);
+      return successResponse(res, data);
     } catch (error) {
-      errorResponse(res, error.message);
+      return errorResponse(res, error.message);
     }
   };
 
@@ -24,43 +23,40 @@ class Orders {
       if (!data) {
         return notfoundResponse(res, "Order not found");
       }
-      successResponse(res, data);
+      return successResponse(res, data);
     } catch (error) {
-      errorResponse(res, error.message);
+      return errorResponse(res, error.message);
     }
   };
 
   static createOrder = async (req, res) => {
     const { userId, itemId, qty } = req.body;
     try {
-      sequelize.transaction(async (t) => {
-        const user = await User.findByPk(userId, { transaction: t });
-        if (!user) {
-          return notfoundResponse(res, "Users not found");
-        }
-        const item = await Item.findByPk(itemId, { transaction: t });
-        if (!item) {
-          return notfoundResponse(res, "Items not found");
-        }
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return notfoundResponse(res, "Users not found");
+      }
+      const item = await Item.findByPk(itemId);
 
-        if (qty > item.qty) {
-          const data = await Order.create(
-            {
-              userId,
-              itemId,
-              qty,
-              status: "pending",
-            },
-            { transaction: t }
-          );
-          successResponse(res, data, "Order created");
-          await Item.update({ qty: item.qty - qty }, { where: { id: itemId } });
-        } else {
-          throw new Error(`Item ${itemId} insufficient to be ordered`);
-        }
-      });
+      if (!item) {
+        return notfoundResponse(res, "Items not found");
+      }
+
+      if (qty > item.qty) {
+        const data = await Order.create({
+          userId,
+          itemId,
+          qty,
+          status: "pending",
+        });
+
+        await Item.update({ qty: item.qty - qty }, { where: { id: itemId } });
+        return successResponse(res, data, "Order created");
+      } else {
+        throw new Error(`Item ${itemId} insufficient to be ordered`);
+      }
     } catch (error) {
-      errorResponse(res, error.message);
+      return serverErrorResponse(res, error.message);
     }
   };
 
@@ -69,21 +65,19 @@ class Orders {
     const { status, itemId, qty } = req.body;
 
     try {
-      sequelize.transaction(async (t) => {
-        const data = await Order.findByPk(id);
+      const data = await Order.findByPk(id);
 
-        if (!id) {
-          throw new Error(`id ${id} not found!`);
-        }
-        if (!data) {
-          return notfoundResponse(res, "Order not found");
-        } else {
-          const updatedOrder = await Order.update({ status, itemId, qty }, { where: { id: itemId }, transaction: t });
-          successResponse(res, updatedOrder, "Order updated");
-        }
-      });
+      if (!id) {
+        throw new Error(`id ${id} not found!`);
+      }
+      if (!data) {
+        return notfoundResponse(res, "Order not found");
+      } else {
+        const updatedOrder = await Order.update({ status, itemId, qty }, { where: { id: itemId } });
+        return successResponse(res, updatedOrder, "Order updated");
+      }
     } catch (error) {
-      errorResponse(res, error.message);
+      return errorResponse(res, "Failed to create order");
     }
   };
 }

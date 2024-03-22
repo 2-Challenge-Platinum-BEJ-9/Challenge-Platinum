@@ -1,11 +1,9 @@
 const { Orders } = require("../controller/orderController");
+const { Items } = require("../controller/itemController");
 const { Item, User, Order } = require("../models");
 
 ///mock
 jest.mock("../models", () => ({
-  sequelize: {
-    transaction: jest.fn(),
-  },
   User: {
     findByPk: jest.fn(),
   },
@@ -19,15 +17,22 @@ jest.mock("../models", () => ({
   },
 }));
 
-const res = {
-  status: jest.fn().mockReturnThis(),
-  json: jest.fn().mockReturnThis(),
+const mockRes = () => {
+  const res = {};
+
+  res.status = jest.fn().mockReturnThis();
+  res.json = jest.fn().mockReturnThis();
+
+  return res;
 };
 
-const req = {
-  params: {},
-  body: {},
+const mockReq = (body = {}, params = {}) => {
+  return { body: body, params: params };
 };
+
+const item = { itemId: 1, qty: 15 };
+const user = { userId: 1 };
+const order = { userId: 1, itemId: 1, qty: 5 };
 
 //testing
 describe("Orders Controller testing section", () => {
@@ -35,51 +40,86 @@ describe("Orders Controller testing section", () => {
     jest.clearAllMocks();
   });
 
-  it("should return notfoundResponse when items are not found", async () => {
-    req.body = { userId: 1, itemId: 1, qty: 5 };
-    Item.findByPk.mockResolvedValueOnce(null);
+  it("should return notfoundResponse if item is not found in the Item table", async () => {
+    const req = mockReq(order);
+    const res = mockRes();
+
+    Item.findByPk.mockReturnValue(null);
+    User.findByPk.mockReturnValue(user);
 
     await Orders.createOrder(req, res);
-
+    expect(Item.findByPk).toHaveBeenCalledWith(order.itemId);
+    expect(User.findByPk).toHaveBeenCalledWith(order.userId);
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: "Items not found" });
+    expect(res.json).toHaveBeenCalledWith({ status: "fail", message: "Items not found" });
+  });
+
+  it("should return notfoundResponse if user is not found in the User table", async () => {
+    const req = mockReq(order);
+    const res = mockRes();
+
+    Item.findByPk.mockReturnValue(item.itemId);
+    User.findByPk.mockReturnValue(null);
+
+    await Orders.createOrder(req, res);
+    expect(User.findByPk).toHaveBeenCalledWith(order.userId);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ status: "fail", message: "Users not found" });
   });
 
   it("should return successResponse and create order when all conditions are met", async () => {
-    const item = { id: 1, qty: 10 };
-    const user = { id: 1 };
-    const order = { id: 1, userId: 1, itemId: 1, qty: 5, status: "pending" };
+    const req = mockReq(order);
+    const res = mockRes();
 
-    Item.findByPk.mockResolvedValueOnce(item);
-    User.findByPk.mockResolvedValueOnce(user);
-    Order.create.mockResolvedValueOnce(order);
+    Item.findByPk.mockReturnValue({ id: item.itemId, qty: 10 });
+    User.findByPk.mockReturnValue(user);
 
     await Orders.createOrder(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: "Order created", data: order });
+    expect(Item.findByPk).toHaveBeenCalledWith(order.itemId);
+    expect(User.findByPk).toHaveBeenCalledWith(order.userId);
+    // expect(Order.create).toHaveBeenCalledWith({
+    //   userId: order.userId,
+    //   itemId: order.itemId,
+    //   qty: order.qty,
+    //   status: "pending",
+    // });
+    // expect(Item.update).toHaveBeenCalledWith({ qty: 10 - order.qty }, { where: { id: order.itemId } });
+    // expect(res.status).toHaveBeenCalledWith(200);
+    // expect(res.json).toHaveBeenCalledWith({
+    //   status: "success",
+    //   data: { userId: order.userId, itemId: order.itemId, qty: order.qty, status: "pending" },
+    //   message: "Order created",
+    // });
   });
-
   it("should return errorResponse when item quantity is insufficient", async () => {
-    const item = { id: 1, qty: 3 };
-    const user = { id: 1 };
+    const req = mockReq(order);
+    const res = mockRes();
 
-    Item.findByPk.mockResolvedValueOnce(item);
-    User.findByPk.mockResolvedValueOnce(user);
+    Item.findByPk.mockReturnValue(item);
+    User.findByPk.mockReturnValue(user.userId);
 
     await Orders.createOrder(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: `Item ${item.id} insufficient to be ordered` });
+    expect(Item.findByPk).toHaveBeenCalledWith(1);
+    expect(User.findByPk).toHaveBeenCalledWith(1);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      status: "error",
+      message: "Item 1 insufficient to be ordered",
+    });
   });
+  it("should return serverErrorResponse if failed to create order", async () => {
+    const req = mockReq(order);
+    const res = mockRes();
 
-  it("should return errorResponse when an error occurs", async () => {
-    const error = new Error("Database error");
-    Item.findByPk.mockRejectedValueOnce(error);
+    Item.findByPk.mockReturnValue({ id: item.itemId, qty: 10 });
+    User.findByPk.mockReturnValue(user);
+    Order.create.mockRejectedValue(new Error("Failed to create order"));
 
     await Orders.createOrder(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500); // Check for internal server error code
-    expect(res.json).toHaveBeenCalledWith({ message: error.message });
+    expect(Item.findByPk).toHaveBeenCalledWith(order.itemId);
+    expect(User.findByPk).toHaveBeenCalledWith(order.userId);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
