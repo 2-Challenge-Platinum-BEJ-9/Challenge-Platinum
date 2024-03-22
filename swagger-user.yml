@@ -1,0 +1,141 @@
+openapi: '3.0.2'
+info:
+  title: Api User
+  version: '1.0'
+servers:
+  - url: http://localhost:3000/api/v1/
+
+paths:
+  /users:
+    get:
+      description: 'View All User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  address:
+                    type: string
+                  password:
+                    type: string
+                  isAdmin:
+                    type: boolean
+                  image:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+              examples:
+                example Output:
+                  value:
+                    firstName: Tono
+                    lastName: Budiman
+                    email: tonobudiman@gmail.com
+                    phoneNumber: 082247514553
+                    address: Jl.langka No.2 Bandung
+                    isAdmin: FALSE
+                    image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fjakarta&psig=AOvVaw2kIMKA9p_ctpDg1xaqtj3e&ust=1709635653771000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCLjy65-32oQDFQAAAAAdAAAAABAE
+                    
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+  /users/delete/:id:
+    delete:
+      description: 'View Detail User By ID'
+      parameters: 
+      - name: userId
+        in: path
+        description: id of the user to retrieve
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Eror or Invalid request
+        '404':
+          description: id not found
+  /update/:id:
+    put:
+      description: ''
+      parameters: 
+      - name: userId
+        in: path
+        description: id of the user to retrieve
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Eror or Invalid request
+        '404':
+          description: id not found
+  /detail/:id:
+    get:
+      description: ''
+      parameters: 
+      - name: userId
+        in: path
+        description: id of the user to retrieve
+        required: true
+        schema:
+          type: integer 
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  address:
+                    type: string
+                  password:
+                    type: string
+                  isAdmin:
+                    type: boolean
+                  image:
+                    type: string
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+              examples:
+                example Output:
+                  value:
+                    firstName: Tono
+                    lastName: Budiman
+                    email: tonobudiman@gmail.com
+                    phoneNumber: 082247514553
+                    address: Jl.langka No.2 Bandung
+                    isAdmin: FALSE
+                    image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fjakarta&psig=AOvVaw2kIMKA9p_ctpDg1xaqtj3e&ust=1709635653771000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCLjy65-32oQDFQAAAAAdAAAAABAE
+                    
+        '400':
+          description: Eror or Invalid request
+        '404':
+          description: id not found
