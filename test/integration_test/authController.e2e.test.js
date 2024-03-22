@@ -12,7 +12,7 @@ const user = {
   password: "prananda23",
   passwordMatch: "prananda23",
   image: null,
-  isAdmin: false,
+  isAdmin: true,
 };
 
 const userPassNotMatch = {

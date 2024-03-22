@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../../main");
+const { flushTable } = require("../testhelper.js");
 
 let id, token;
 const data = {
@@ -14,12 +15,59 @@ const data = {
 beforeAll(async () => {
   // Run the login request to obtain the token
   const loginResponse = await request(app).post(`/api/v1/auth/login/`).send({
-    email: "user1@example.com",
-    password: "Test1234",
+    email: "pranandayoga3@gmail.com",
+    password: "prananda23",
   });
   token = loginResponse.body.data; // Store the token for later use
+  console.log(loginResponse.body);
 });
 
+afterAll(async () => {
+  await flushTable();
+});
+
+describe("POST /api/v1/items", () => {
+  it("should return 201", async () => {
+    console.log(token);
+    const response = await request(app)
+      .post("/api/v1/items/")
+      .set("Authorization", `Bearer ${token}`)
+      .send(data);
+    console.log(response.body);
+    id = response.body?.data?.id;
+    expect(response.status).toBe(201);
+    expect(response.body).toBeDefined();
+    expect(response.body).toMatchObject({
+      status: "success",
+      data: { id, ...data },
+      message: "Created",
+    });
+  });
+  it("should return 400", async () => {
+    const response = await request(app)
+      .post("/api/v1/items/")
+      .set("Authorization", `Bearer ${token}`)
+      .send(data);
+    expect(response.status).toBe(400);
+    expect(response.body).toBeDefined();
+    expect(response.body).toEqual({
+      status: "fail",
+      errors: "Item already exists",
+      message: "Bad request. Please check your input",
+    });
+  });
+  it("should return 401", async () => {
+    const response = await request(app).post("/api/v1/items/").send(data);
+    expect(response.status).toBe(401);
+    expect(response.body).toBeDefined();
+    expect(response.body).toEqual({
+      status: "fail",
+      message: "Unauthorized, Log in first!",
+    });
+    expect(response.body.errors).toBeUndefined();
+    expect(response.body.data).toBeUndefined();
+  });
+});
 describe("GET /api/v1/items", () => {
   it("should return 200", async () => {
     const response = await request(app).get("/api/v1/items");
@@ -63,47 +111,6 @@ describe("GET /api/v1/items", () => {
       status: "fail",
     });
     expect(response.body.message).toBeDefined();
-    expect(response.body.data).toBeUndefined();
-  });
-});
-
-describe("POST /api/v1/items", () => {
-  it("should return 201", async () => {
-    const response = await request(app)
-      .post("/api/v1/items/")
-      .set("Authorization", `Bearer ${token}`)
-      .send(data);
-    id = response.body?.data.id;
-    expect(response.status).toBe(201);
-    expect(response.body).toBeDefined();
-    expect(response.body).toMatchObject({
-      status: "success",
-      data: { id, ...data },
-      message: "Created",
-    });
-  });
-  it("should return 400", async () => {
-    const response = await request(app)
-      .post("/api/v1/items/")
-      .set("Authorization", `Bearer ${token}`)
-      .send(data);
-    expect(response.status).toBe(400);
-    expect(response.body).toBeDefined();
-    expect(response.body).toEqual({
-      status: "fail",
-      errors: "Item already exists",
-      message: "Bad request. Please check your input",
-    });
-  });
-  it("should return 401", async () => {
-    const response = await request(app).post("/api/v1/items/").send(data);
-    expect(response.status).toBe(401);
-    expect(response.body).toBeDefined();
-    expect(response.body).toEqual({
-      status: "fail",
-      message: "Unauthorized, Log in first!",
-    });
-    expect(response.body.errors).toBeUndefined();
     expect(response.body.data).toBeUndefined();
   });
 });
