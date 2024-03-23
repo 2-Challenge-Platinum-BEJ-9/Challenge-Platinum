@@ -1,5 +1,4 @@
 const { Orders } = require("../controller/orderController");
-const { Items } = require("../controller/itemController");
 const { Item, User, Order } = require("../models");
 
 ///mock
@@ -30,9 +29,10 @@ const mockReq = (body = {}, params = {}) => {
   return { body: body, params: params };
 };
 
-const item = { itemId: 1, qty: 15 };
+const item = { itemId: 1, qty: 15, price: 1000 };
 const user = { userId: 1 };
 const order = { userId: 1, itemId: 1, qty: 5 };
+const bulkOrder = { userId: 1, itemId: 1, qty: 100 };
 
 //testing
 describe("Orders Controller testing section", () => {
@@ -71,29 +71,25 @@ describe("Orders Controller testing section", () => {
     const req = mockReq(order);
     const res = mockRes();
 
-    Item.findByPk.mockReturnValue({ id: item.itemId, qty: 10 });
+    Item.findByPk.mockReturnValue({ id: item.itemId, qty: 15 });
     User.findByPk.mockReturnValue(user);
 
     await Orders.createOrder(req, res);
 
     expect(Item.findByPk).toHaveBeenCalledWith(order.itemId);
     expect(User.findByPk).toHaveBeenCalledWith(order.userId);
-    // expect(Order.create).toHaveBeenCalledWith({
-    //   userId: order.userId,
-    //   itemId: order.itemId,
-    //   qty: order.qty,
-    //   status: "pending",
-    // });
-    // expect(Item.update).toHaveBeenCalledWith({ qty: 10 - order.qty }, { where: { id: order.itemId } });
-    // expect(res.status).toHaveBeenCalledWith(200);
-    // expect(res.json).toHaveBeenCalledWith({
-    //   status: "success",
-    //   data: { userId: order.userId, itemId: order.itemId, qty: order.qty, status: "pending" },
-    //   message: "Order created",
-    // });
+
+    expect(Item.update).toHaveBeenCalledWith({ qty: item.qty - order.qty }, { where: { id: order.itemId } });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      status: "success",
+      data: { userId: order.userId, itemId: order.itemId, qty: order.qty, status: "pending" },
+      message: "Order created",
+    });
   });
+
   it("should return errorResponse when item quantity is insufficient", async () => {
-    const req = mockReq(order);
+    const req = mockReq(bulkOrder);
     const res = mockRes();
 
     Item.findByPk.mockReturnValue(item);
@@ -109,6 +105,7 @@ describe("Orders Controller testing section", () => {
       message: "Item 1 insufficient to be ordered",
     });
   });
+
   it("should return serverErrorResponse if failed to create order", async () => {
     const req = mockReq(order);
     const res = mockRes();
