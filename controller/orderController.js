@@ -5,7 +5,6 @@ const order = require("../models/order");
 class Orders {
   static getAllOrders = async (req, res) => {
     try {
-      console.log("eror");
       const data = await Order.findAll();
       if (!data || data.length === 0) {
         return notfoundResponse(res, "Database empty");
