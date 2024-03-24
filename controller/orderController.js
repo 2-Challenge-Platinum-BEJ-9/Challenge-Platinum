@@ -10,7 +10,7 @@ class Orders {
       if (!data || data.length === 0) {
         return notfoundResponse(res, "Database empty");
       }
-      return successResponse(res, data);
+      return successResponse(res, 200, data, "found all data");
     } catch (error) {
       return errorResponse(res, error.message);
     }
@@ -24,7 +24,7 @@ class Orders {
       if (!data) {
         return notfoundResponse(res, "Order not found");
       }
-      return successResponse(res, data);
+      return successResponse(res, 200, data, "data id is found");
     } catch (error) {
       return errorResponse(res, error.message);
     }
@@ -49,8 +49,7 @@ class Orders {
         throw new Error(`Item ${itemId} insufficient to be ordered`);
       }
       const totalPrice = qty * item.price;
-
-      const data = await Order.create(
+      await Order.create(
         {
           userId,
           itemId,
@@ -79,6 +78,9 @@ class Orders {
   static updateOrder = async (req, res) => {
     const id = req.params.id;
     const { status, itemId, qty } = req.body;
+    const item = await Item.findByPk(itemId);
+    const totalPrice = qty * item.price;
+    const t = await sequelize.transaction();
 
     try {
       const data = await Order.findByPk(id);
@@ -89,11 +91,20 @@ class Orders {
       if (!data) {
         return notfoundResponse(res, "Order not found");
       } else {
-        const updatedOrder = await Order.update({ status, itemId, qty }, { where: { id: itemId } });
-        return successResponse(res, updatedOrder, "Order updated");
+        await Order.update({ status, itemId, qty, totalPrice }, { where: { id: id }, transaction: t });
+        const updatedData = {
+          status,
+          itemId,
+          qty,
+          totalPrice,
+        };
+        await t.commit();
+
+        return successResponse(res, 200, updatedData, "Order updated");
       }
     } catch (error) {
-      return errorResponse(res, "Failed to create order");
+      await t.rollback();
+      return errorResponse(res, "Failed to update order");
     }
   };
 }
