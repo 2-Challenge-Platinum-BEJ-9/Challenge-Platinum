@@ -106,19 +106,6 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
-			token: {
-				type: DataTypes.TEXT,
-				allowNull: false,
-				notEmpty: true,
-				validate: {
-					notNull: {
-						msg: "token is null",
-					},
-					notEmpty: {
-						msg: "token is empty",
-					},
-				},
-			},
 			isAdmin: {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,
