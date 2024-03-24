@@ -1,26 +1,59 @@
 const request = require("supertest");
 const app = require("../../main");
+const { User, Item } = require("../../models");
 
 let id, token;
-const data = {
-  name: "test",
-  price: 10000,
-  stock: 10,
-  category: "test",
-  description: "test",
-  image: "https://example.com/image.png",
+const userTest = {
+  firstName: "test7654",
+  lastName: "",
+  email: "test7654@mail.com",
+  phoneNumber: "089987236487",
+  password: "Test7654",
+  address: "address",
+  image: "image",
+  isAdmin: true,
 };
 
+const data = [
+  {
+    name: "test5467",
+    price: 11000,
+    stock: 11,
+    category: "test1",
+    description: "test1",
+    image: "https://example.com/image.png",
+  },
+  {
+    name: "test9876",
+    price: 11000,
+    stock: 11,
+    category: "test1",
+    description: "test1",
+    image: "https://example.com/image.png",
+  },
+];
+
 beforeAll(async () => {
-  // Run the login request to obtain the token
+  try {
+    await User.create(userTest);
+    const item = await Item.create(data[0], { returning: true });
+    id = item.id;
+  } catch (error) {
+    console.log(error.message);
+  }
   const loginResponse = await request(app).post(`/api/v1/auth/login/`).send({
-    email: "user1@example.com",
-    password: "Test1234",
+    email: userTest.email,
+    password: userTest.password,
   });
-  token = loginResponse.body.data; // Store the token for later use
+  token = loginResponse.body?.data;
 });
 
-describe("GET /api/v1/items", () => {
+afterAll(async () => {
+  await User.destroy({ truncate: { cascade: false } });
+  await Item.destroy({ truncate: { cascade: false } });
+});
+
+describe("All Items - GET /api/v1/items", () => {
   it("should return 200", async () => {
     const response = await request(app).get("/api/v1/items");
     expect(response.status).toBe(200);
@@ -67,18 +100,17 @@ describe("GET /api/v1/items", () => {
   });
 });
 
-describe("POST /api/v1/items", () => {
+describe("Create Item - POST /api/v1/items", () => {
   it("should return 201", async () => {
     const response = await request(app)
       .post("/api/v1/items/")
       .set("Authorization", `Bearer ${token}`)
-      .send(data);
-    id = response.body?.data.id;
+      .send(data[1]);
     expect(response.status).toBe(201);
     expect(response.body).toBeDefined();
     expect(response.body).toMatchObject({
       status: "success",
-      data: { id, ...data },
+      data: data[1],
       message: "Created",
     });
   });
@@ -86,7 +118,7 @@ describe("POST /api/v1/items", () => {
     const response = await request(app)
       .post("/api/v1/items/")
       .set("Authorization", `Bearer ${token}`)
-      .send(data);
+      .send(data[0]);
     expect(response.status).toBe(400);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
@@ -96,7 +128,7 @@ describe("POST /api/v1/items", () => {
     });
   });
   it("should return 401", async () => {
-    const response = await request(app).post("/api/v1/items/").send(data);
+    const response = await request(app).post("/api/v1/items/").send(data[0]);
     expect(response.status).toBe(401);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
@@ -108,14 +140,14 @@ describe("POST /api/v1/items", () => {
   });
 });
 
-describe("GET /api/v1/items/:id", () => {
+describe("Detail Item - GET /api/v1/items/:id", () => {
   it("should return 200", async () => {
     const response = await request(app).get(`/api/v1/items/${id}`);
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
       status: "success",
-      data: { id, ...data },
+      data: { id, ...data[0] },
       message: "Success",
     });
   });
@@ -142,27 +174,27 @@ describe("GET /api/v1/items/:id", () => {
   });
 });
 
-describe("PUT /api/v1/items/:id", () => {
+describe("Update Item - PUT /api/v1/items/:id", () => {
   it("should return 200", async () => {
-    data.description = "new description";
+    data[0].description = "new description";
     const response = await request(app)
       .put(`/api/v1/items/${id}`)
       .set("Authorization", `Bearer ${token}`)
-      .send(data);
+      .send(data[0]);
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
       status: "success",
-      data: { id, ...data },
+      data: { id, ...data[0] },
       message: "Updated",
     });
   });
   it("should return 404", async () => {
-    data.description = "new description";
+    data[0].description = "new description";
     const response = await request(app)
       .put(`/api/v1/items/0`)
       .set("Authorization", `Bearer ${token}`)
-      .send(data);
+      .send(data[0]);
     expect(response.status).toBe(404);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
@@ -172,11 +204,11 @@ describe("PUT /api/v1/items/:id", () => {
     expect(response.body.data).toBeUndefined();
   });
   it("should return 400", async () => {
-    data.description = "new description";
+    data[0].description = "new description";
     const response = await request(app)
       .put(`/api/v1/items/error`)
       .set("Authorization", `Bearer ${token}`)
-      .send(data);
+      .send(data[0]);
     expect(response.status).toBe(400);
     expect(response.body).toBeDefined();
     expect(response.body).toMatchObject({
@@ -187,8 +219,10 @@ describe("PUT /api/v1/items/:id", () => {
     expect(response.body.data).toBeUndefined();
   });
   it("should return 401", async () => {
-    data.description = "new description";
-    const response = await request(app).put(`/api/v1/items/${id}`).send(data);
+    data[0].description = "new description";
+    const response = await request(app)
+      .put(`/api/v1/items/${id}`)
+      .send(data[0]);
     expect(response.status).toBe(401);
     expect(response.body).toBeDefined();
     expect(response.body).toEqual({
@@ -200,7 +234,7 @@ describe("PUT /api/v1/items/:id", () => {
   });
 });
 
-describe("DELETE /api/v1/items/:id", () => {
+describe("Delete Item - DELETE /api/v1/items/:id", () => {
   it("should return 200", async () => {
     const response = await request(app)
       .delete(`/api/v1/items/${id}`)
