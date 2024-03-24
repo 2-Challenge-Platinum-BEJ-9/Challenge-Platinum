@@ -104,6 +104,21 @@ module.exports = (sequelize, DataTypes) => {
             args: [6, 20],
             msg: "Password must be at least 6-20 characters",
           },
+
+        },
+      },
+      token: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        notEmpty: true,
+        validate: {
+          notNull: {
+            msg: "token is null",
+          },
+          notEmpty: {
+            msg: "token is empty",
+          },
+
         },
       },
       isAdmin: {
@@ -134,8 +149,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+
+  User.beforeCreate((user) => {
+    user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10), null);
+
   User.addHook("beforeCreate", async (user) => {
     user.password = await bcrypt.hash(user.password, bcrypt.genSaltSync(10));
+
   });
 
   User.prototype.CorrectPassword = async (reqPassword, passwordDB) => {

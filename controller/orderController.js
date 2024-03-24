@@ -1,10 +1,8 @@
-const { Order, Item, sequelize } = require("../models");
-const {
-  successResponse,
-  errorResponse,
-  notfoundResponse,
-} = require("../helper/formatResponse");
-const item = require("../models/item");
+
+const { Order, Item, User, sequelize } = require("../models");
+const { successResponse, errorResponse, notfoundResponse, serverErrorResponse } = require("../helper/formatResponse");
+const order = require("../models/order");
+
 
 class Orders {
   static getAllOrders = async (req, res) => {
@@ -14,9 +12,9 @@ class Orders {
       if (!data || data.length === 0) {
         return notfoundResponse(res, "Database empty");
       }
-      successResponse(res, data);
+      return successResponse(res, 200, data, "found all data");
     } catch (error) {
-      errorResponse(res, error.message);
+      return errorResponse(res, error.message);
     }
   };
 
@@ -28,68 +26,87 @@ class Orders {
       if (!data) {
         return notfoundResponse(res, "Order not found");
       }
-      successResponse(res, data);
+      return successResponse(res, 200, data, "data id is found");
     } catch (error) {
-      errorResponse(res, error.message);
+      return errorResponse(res, error.message);
     }
   };
 
   static createOrder = async (req, res) => {
     const { userId, itemId, qty } = req.body;
+    const t = await sequelize.transaction();
+
     try {
-      sequelize.transaction(async (t) => {
-        const item = await Item.findByPk(userId, { transaction: t });
-        if (!item) {
-          return notfoundResponse(res, "Items not found");
-        }
-        const user = await UserActivation.findByPk(itemId, { transaction: t });
-        if (!user) {
-          return notfoundResponse(res, "Users not found  not found");
-        }
-        if (qty > item.qty) {
-          const data = await Order.create(
-            {
-              userId,
-              itemId,
-              qty,
-              status: "pending",
-            },
-            { transaction: t }
-          );
-          successResponse(res, data, "Order created");
-          await Item.update({ qty: item.qty - qty }, { where: { id: itemId } });
-        } else {
-          throw new Error(`Item ${itemId} insufficient to be ordered`);
-        }
-      });
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return notfoundResponse(res, "Users not found");
+      }
+      const item = await Item.findByPk(itemId);
+
+      if (!item) {
+        return notfoundResponse(res, "Items not found");
+      }
+
+      if (qty > item.qty) {
+        throw new Error(`Item ${itemId} insufficient to be ordered`);
+      }
+      const totalPrice = qty * item.price;
+      await Order.create(
+        {
+          userId,
+          itemId,
+          qty,
+          status: "pending",
+          totalPrice,
+        },
+        { transaction: t }
+      );
+      const orderedData = {
+        userId,
+        itemId,
+        qty,
+        status: "pending",
+        totalPrice,
+      };
+      await Item.update({ qty: item.qty - req.body.qty }, { where: { id: req.body.itemId }, transaction: t });
+      await t.commit();
+      return successResponse(res, 200, orderedData, "Order created");
     } catch (error) {
-      errorResponse(res, error.message);
+      await t.rollback();
+      return serverErrorResponse(res, error.message);
     }
   };
 
   static updateOrder = async (req, res) => {
     const id = req.params.id;
     const { status, itemId, qty } = req.body;
+    const item = await Item.findByPk(itemId);
+    const totalPrice = qty * item.price;
+    const t = await sequelize.transaction();
 
     try {
-      sequelize.transaction(async (t) => {
-        const data = await Order.findByPk(id);
+      const data = await Order.findByPk(id);
 
-        if (!id) {
-          throw new Error(`id ${id} not found!`);
-        }
-        if (!data) {
-          return notfoundResponse(res, "Order not found");
-        } else {
-          const updatedOrder = await Order.update(
-            { status, itemId, qty },
-            { where: { id: itemId }, transaction: t }
-          );
-          successResponse(res, updatedOrder, "Order updated");
-        }
-      });
+      if (!id) {
+        throw new Error(`id ${id} not found!`);
+      }
+      if (!data) {
+        return notfoundResponse(res, "Order not found");
+      } else {
+        await Order.update({ status, itemId, qty, totalPrice }, { where: { id: id }, transaction: t });
+        const updatedData = {
+          status,
+          itemId,
+          qty,
+          totalPrice,
+        };
+        await t.commit();
+
+        return successResponse(res, 200, updatedData, "Order updated");
+      }
     } catch (error) {
-      errorResponse(res, error.message);
+      await t.rollback();
+      return errorResponse(res, "Failed to update order");
     }
   };
 }
