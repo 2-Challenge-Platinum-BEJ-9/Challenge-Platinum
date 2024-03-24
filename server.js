@@ -1,6 +1,6 @@
-const app = require("./main");
+const httpServer = require("./main");
 const port = 3000;
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`This app running at http://localhost:${port}`);
 });
