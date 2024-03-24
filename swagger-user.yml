@@ -1,6 +1,6 @@
 openapi: '3.0.2'
 info:
-  title: Api User
+  title: Dokumentasi User dan Ath
   version: '1.0'
 servers:
   - url: http://localhost:3000/api/v1/
@@ -8,6 +8,8 @@ servers:
 paths:
   /users:
     get:
+      tags:
+      - user
       description: 'View All User'
       responses:
         '200':
@@ -17,6 +19,8 @@ paths:
               schema: 
                 type: object
                 properties:
+                  id:
+                    type: integer
                   firstName:
                     type: string
                   lastName:
@@ -33,13 +37,14 @@ paths:
                     type: boolean
                   image:
                     type: string
-                  created_at:
+                  createdAt:
                     type: string
-                  updated_at:
+                  updatedAt:
                     type: string
               examples:
                 example Output:
                   value:
+                    id: 1
                     firstName: Tono
                     lastName: Budiman
                     email: tonobudiman@gmail.com
@@ -47,16 +52,19 @@ paths:
                     address: Jl.langka No.2 Bandung
                     isAdmin: FALSE
                     image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fjakarta&psig=AOvVaw2kIMKA9p_ctpDg1xaqtj3e&ust=1709635653771000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCLjy65-32oQDFQAAAAAdAAAAABAE
-                    
+                    createdAt : 20-10-2024
+                    updatedAt: 20-10-2024
         '400':
           description: Bad Request
         '404':
           description: Not Found
   /users/delete/:id:
     delete:
+      tags:
+      - user
       description: 'View Detail User By ID'
       parameters: 
-      - name: userId
+      - name: id
         in: path
         description: id of the user to retrieve
         required: true
@@ -71,9 +79,11 @@ paths:
           description: id not found
   /update/:id:
     put:
+      tags:
+      - user
       description: ''
       parameters: 
-      - name: userId
+      - name: id
         in: path
         description: id of the user to retrieve
         required: true
@@ -88,9 +98,11 @@ paths:
           description: id not found
   /detail/:id:
     get:
+      tags:
+      - user
       description: ''
       parameters: 
-      - name: userId
+      - name: id
         in: path
         description: id of the user to retrieve
         required: true
@@ -104,6 +116,8 @@ paths:
               schema: 
                 type: object
                 properties:
+                  id:
+                    type: integer
                   firstName:
                     type: string
                   lastName:
@@ -120,13 +134,14 @@ paths:
                     type: boolean
                   image:
                     type: string
-                  created_at:
+                  createdAt:
                     type: string
-                  updated_at:
+                  updatedAt:
                     type: string
               examples:
                 example Output:
                   value:
+                    id: 1
                     firstName: Tono
                     lastName: Budiman
                     email: tonobudiman@gmail.com
@@ -134,8 +149,83 @@ paths:
                     address: Jl.langka No.2 Bandung
                     isAdmin: FALSE
                     image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fjakarta&psig=AOvVaw2kIMKA9p_ctpDg1xaqtj3e&ust=1709635653771000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCLjy65-32oQDFQAAAAAdAAAAABAE
-                    
+                    createdAt : 20-10-2024
+                    updatedAt: 20-10-2024
         '400':
           description: Eror or Invalid request
         '404':
           description: id not found
+
+  /register:
+    post:
+      tags:
+        - auth
+      description: Register New User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                phoneNumber:
+                  type: string
+                address:
+                  type: string
+                password:
+                  type: string
+                passwordMatch:
+                  type: string
+                isAdmin:
+                  type: boolean
+                image:
+                  type: string
+            examples:
+              example Input Data:
+                value:
+                  firstName: Tono
+                  lastName: Budiman
+                  email: tonobudiman@gmail.com
+                  phoneNumber: 082247514553
+                  address: Jl.langka No.2 Bandung
+                  password: tono123
+                  passwordMatch: tono123
+                  isAdmin: FALSE
+                  image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fjakarta&psig=AOvVaw2kIMKA9p_ctpDg1xaqtj3e&ust=1709635653771000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCLjy65-32oQDFQAAAAAdAAAAABAE
+                  
+      responses:
+        '201':
+          description: Success Register
+        '400':
+          description: Eror or Invalid request
+      
+  /login:
+    post:
+      tags:
+        - auth
+      description: Login User and admin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Success Login
+        '400':
+          description: Eror or Invalid request
+
+   
+ 
