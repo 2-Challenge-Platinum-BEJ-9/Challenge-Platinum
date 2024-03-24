@@ -1,7 +1,6 @@
 const { User } = require("../models");
 const {
 	successResponse,
-	errorResponse,
 	notfoundResponse,
 	serverErrorResponse,
 	unauthorizedResponse,
@@ -30,41 +29,93 @@ class UserController {
 				],
 			});
 
-			if (data.length === 0) {
+			if (!data || data.length === 0) {
 				return notfoundResponse(res, "User empty");
 			}
-			return successResponse(res, data, "all  data Users", 200);
+			return successResponse(res, 200, data, "all  data Users");
 		} catch (error) {
-			console.log(error);
-			return serverErrorResponse(res);
+			return serverErrorResponse(res, error.message);
 		}
 	};
 
 	static detailUser = async (req, res) => {
 		try {
-			// view detail User
 			const { id } = req.params;
-			const data = await User.findByPk(id); //check data user by id request
+			const data = await User.findByPk(id);
 			if (data === null) {
-				//check is null
-				notfoundResponse(res, `data User by id (${id}) is not found`);
+				return notfoundResponse(res, `data User by id (${id}) is not found`);
 			} else {
-				//check success respon
-				successResponse(res, data, `detail user by id (${id})`, 200);
+				let result = {
+					id: data.id,
+					firstName: data.firstName,
+					lastName: data.lastName,
+					email: data.email,
+					phoneNumber: data.phoneNumber,
+					address: data.address,
+					isAdmin: data.isAdmin,
+					image: data.image,
+				};
+				return successResponse(res, 200, result, `detail user by id (${id})`);
 			}
 		} catch (error) {
-			//server error
-			serverErrorResponse(res);
+			return serverErrorResponse(res, error.message);
+		}
+	};
+
+	static updateUser = async (req, res) => {
+		const { id } = req.params;
+		const {
+			firstName,
+			lastName,
+			email,
+			password,
+			phoneNumber,
+			address,
+			isAdmin,
+			image,
+		} = req.body;
+
+		try {
+			await User.update(
+				{
+					firstName: firstName,
+					lastName: lastName,
+					email: email,
+					password: password,
+					phoneNumber: phoneNumber,
+					address: address,
+					isAdmin: isAdmin,
+					image: image,
+				},
+				{
+					where: {
+						id: id,
+					},
+				}
+			);
+			const data = await User.findByPk(id);
+
+			const user = {
+				id: data.id,
+				firstName: data.firstName,
+				lastName: data.lastName,
+				email: data.email,
+				phoneNumber: data.phoneNumber,
+				address: data.address,
+				isAdmin: data.isAdmin,
+				image: data.image,
+			};
+			return successResponse(res, 200, user);
+		} catch (error) {
+			return serverErrorResponse(res, error.message);
 		}
 	};
 
 	static deleteUser = async (req, res) => {
 		try {
-			// delete user
 			const { id } = req.params;
 			const newData = await User.findByPk(id);
 			if (newData === null) {
-				//if user not found
 				return notfoundResponse(res, `data user by id (${id}) is not found`);
 			}
 			await User.destroy({
@@ -72,14 +123,9 @@ class UserController {
 					id: id,
 				},
 			});
-			successResponse(
-				res,
-				newData,
-				`delete user by id (${id}) successfully`,
-				200
-			);
+			successResponse(res, 200, null, `delete user by id (${id}) successfully`);
 		} catch (error) {
-			serverErrorResponse(res);
+			serverErrorResponse(res, error.message);
 		}
 	};
 }
