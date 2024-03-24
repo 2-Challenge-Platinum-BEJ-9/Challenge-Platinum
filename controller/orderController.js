@@ -1,4 +1,4 @@
-const { Order, Item, User } = require("../models");
+const { Order, Item, User, sequelize } = require("../models");
 const { successResponse, errorResponse, notfoundResponse, serverErrorResponse } = require("../helper/formatResponse");
 const order = require("../models/order");
 
@@ -32,6 +32,7 @@ class Orders {
 
   static createOrder = async (req, res) => {
     const { userId, itemId, qty } = req.body;
+    const t = await sequelize.transaction();
 
     try {
       const user = await User.findByPk(userId);
@@ -47,26 +48,30 @@ class Orders {
       if (qty > item.qty) {
         throw new Error(`Item ${itemId} insufficient to be ordered`);
       }
-      console.log(item.price);
-      const data = await Order.create({
+      const totalPrice = qty * item.price;
+
+      const data = await Order.create(
+        {
+          userId,
+          itemId,
+          qty,
+          status: "pending",
+          totalPrice,
+        },
+        { transaction: t }
+      );
+      const orderedData = {
         userId,
         itemId,
         qty,
         status: "pending",
-      });
-      await Item.update({ qty: item.qty - req.body.qty }, { where: { id: req.body.itemId } });
-      return successResponse(
-        res,
-        200,
-        {
-          itemId: req.body.itemId,
-          qty: req.body.qty,
-          userId: req.body.userId,
-          status: "pending",
-        },
-        "Order created"
-      );
+        totalPrice,
+      };
+      await Item.update({ qty: item.qty - req.body.qty }, { where: { id: req.body.itemId }, transaction: t });
+      await t.commit();
+      return successResponse(res, 200, orderedData, "Order created");
     } catch (error) {
+      await t.rollback();
       return serverErrorResponse(res, error.message);
     }
   };

@@ -1,5 +1,5 @@
 const { Orders } = require("../controller/orderController");
-const { Item, User, Order } = require("../models");
+const { Item, User, Order, sequelize } = require("../models");
 
 ///mock
 jest.mock("../models", () => ({
@@ -13,6 +13,9 @@ jest.mock("../models", () => ({
   Order: {
     findByPk: jest.fn(),
     create: jest.fn(),
+  },
+  sequelize: {
+    transaction: jest.fn(),
   },
 }));
 
@@ -36,6 +39,11 @@ const bulkOrder = { userId: 1, itemId: 1, qty: 100 };
 
 //testing
 describe("Orders Controller testing section", () => {
+  beforeEach(async () => {
+    t = { commit: jest.fn(), rollback: jest.fn() };
+    sequelize.transaction.mockResolvedValue(t);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -70,8 +78,9 @@ describe("Orders Controller testing section", () => {
   it("should return successResponse and create order when all conditions are met", async () => {
     const req = mockReq(order);
     const res = mockRes();
+    const expectedTotalPrice = order.qty * item.price;
 
-    Item.findByPk.mockReturnValue({ id: item.itemId, qty: 15 });
+    Item.findByPk.mockReturnValue(item);
     User.findByPk.mockReturnValue(user);
 
     await Orders.createOrder(req, res);
@@ -79,11 +88,17 @@ describe("Orders Controller testing section", () => {
     expect(Item.findByPk).toHaveBeenCalledWith(order.itemId);
     expect(User.findByPk).toHaveBeenCalledWith(order.userId);
 
-    expect(Item.update).toHaveBeenCalledWith({ qty: item.qty - order.qty }, { where: { id: order.itemId } });
+    expect(Item.update).toHaveBeenCalledWith({ qty: item.qty - order.qty }, { where: { id: order.itemId }, transaction: t });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       status: "success",
-      data: { userId: order.userId, itemId: order.itemId, qty: order.qty, status: "pending" },
+      data: {
+        userId: order.userId,
+        itemId: order.itemId,
+        qty: order.qty,
+        status: "pending",
+        totalPrice: expectedTotalPrice,
+      },
       message: "Order created",
     });
   });
