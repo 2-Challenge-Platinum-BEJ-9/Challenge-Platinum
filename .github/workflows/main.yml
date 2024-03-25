@@ -33,6 +33,7 @@ jobs:
             echo '{ "development": { "username": "${{ secrets.DB_NAME }}", "password": "${{ secrets.DB_PASSWORD }}", "database": "${{ secrets.DB_NAME }}", "host": "${{ secrets.DB_HOST }}", "dialect": "postgres" } }' > config/config.json
             tee .env << EOF
             ${{ secrets.ENV }}
+            ${{ secrets.BASE_URL }}
             EOF
             npm i
             npx sequelize db:migrate
