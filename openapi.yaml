@@ -1,0 +1,1058 @@
+openapi: 3.0.3
+info:
+  title: BingleShop Documention API
+  description: |-
+    Dokumentasi terkait Challenge Platinum #2 Binar Academy. Aplikasi BingleShop berisi
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://localhost:3000/api/v1
+tags:
+  - name: users
+    description: Akses terkait data user
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+  - name: items
+    description: Akses terkait data item
+    externalDocs:
+      description: Find out more about our store
+      url: http://swagger.io
+  - name: orders
+    description: Akses terkait data order
+  - name: auth
+    description: Akses terkait register, login, dan logout
+  - name: upload
+    description: Akses terkait upload dokumen foto, video, dan lainnya
+
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: Get All Users
+      description: Get all entire users from database
+      operationId: getAllUsers
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Users"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Users not found!
+
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: Finds Users by Id
+      description: Multiple status values can be provided with comma separated strings
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Users"
+            application/xml:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Users"
+        "400":
+          description: Invalid status value
+        "404":
+          description: not found by id
+
+    put:
+      tags:
+        - users
+      summary: Updata user data
+      description: Update user data by Id
+      parameters:
+        - name: id
+          in: path
+          description: id of the user to retrieve
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - firstName
+                - lastName
+                - email
+                - phoneNumber
+                - address
+                - password
+                - isAdmin
+                - image
+              properties:
+                id:
+                  type: integer
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phoneNumber:
+                  type: string
+                address:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                isAdmin:
+                  type: boolean
+                image:
+                  type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Eror or Invalid request
+        "404":
+          description: id not found
+
+    delete:
+      tags:
+        - users
+      summary: Delete User by Id
+      description: Multiple status values can be provided with comma separated strings
+      operationId: deleteUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Users"
+        "400":
+          description: Invalid status value
+        "404":
+          description: not found by id
+
+  /items:
+    get:
+      tags:
+        - items
+      summary: Get All Items
+      description: Get all entire items from database
+      operationId: getAllItems
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Items"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Users not found!
+    post:
+      tags:
+        - items
+      summary: Post New Item
+      description: Post new item to database
+      operationId: postNewItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Items"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Items"
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+
+  /items/{id}:
+    get:
+      tags:
+        - items
+      summary: Get All Items
+      description: Get all entire items from database
+      operationId: getItemById
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Items"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Users not found!
+
+  #Orders API
+
+  /orders:
+    get:
+      tags:
+        - orders
+      summary: Get All Orders
+      description: Get all orders from database
+      operationId: getAllOrders
+      responses:
+        "200":
+          description: found all data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Cannot read properties of null (reading 'id')
+                example:
+                  status: fail
+                  errors: errors message
+                  message: Bad request. Please check your input
+        "404":
+          description: not found Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found
+    post:
+      tags:
+        - orders
+      summary: Create orders
+      description: Create new orders
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int64
+                  example: 10
+                itemId:
+                  type: integer
+                  format: int64
+                  example: 10
+                qty:
+                  type: integer
+                  format: int32
+                  example: 10
+                status:
+                  type: string
+                  description: Order Status
+                  example: pending
+                  enum:
+                    - pending
+                    - processing
+                    - shipped
+                    - delivered
+                    - canceled
+      responses:
+        "200":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request. Please check your input
+        "404":
+          description: not found Response Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                Users not found:
+                  value:
+                    status: fail
+                    message: Users not found
+                Items not found:
+                  value:
+                    status: fail
+                    message: Items not found
+
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                Insuficient qty items:
+                  value:
+                    status: fail
+                    message: Item {id} insufficient to be ordered
+                Others eror:
+                  value:
+                    status: Error
+
+                    message: Internal Server Error
+
+  /orders/{id}:
+    get:
+      tags:
+        - orders
+      summary: Get Order by Id
+      description: Get data from order
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: data id is found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Cannot read properties of null (reading 'id')
+                example:
+                  status: fail
+                  errors: errors message
+                  message: Bad request. Please check your input
+        "404":
+          description: not found Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found"400"
+    put:
+      tags:
+        - orders
+      summary: Update data depends on which id
+      description: Updated ordered data
+      operationId: updateOrder
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        "200":
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                order id is not found:
+                  value:
+                    status: Error
+                    message: id ${id} not found!
+                Others eror:
+                  value:
+                    status: Error
+                    message: Failed to update order
+
+  # Controller Auth - Register, Login and Logout
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Register new user
+      description: First step to create new user account
+      operationId: authRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  description: The user first name
+                lastName:
+                  type: string
+                  description: The user last name
+                email:
+                  type: string
+                  description: The user email
+                phoneNumber:
+                  type: string
+                  description: The user phone number
+                address:
+                  type: string
+                  description: The user address
+                password:
+                  type: string
+                  description: The user password
+                passwordMatch:
+                  type: string
+                  description: The user password that match with previous password
+                image:
+                  type: string
+                  description: The user image link
+                isAdmin:
+                  type: boolean
+                  description: The user authorization
+      responses:
+        "201":
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    example: 1
+                  firstName:
+                    type: string
+                    example: Jonathan
+                  lastName:
+                    type: string
+                    example: Liandi
+                  email:
+                    type: string
+                    example: jonathanliandi@gmail.com
+                  phoneNumber:
+                    type: integer
+                    format: int32
+                    example: 081234567890
+                  address:
+                    type: string
+                    example: Jakarta
+                  image:
+                    type: string
+                    example: "https://example.image.com"
+                  isAdmin:
+                    type: boolean
+                    example: true
+        "400":
+          description: Bad request Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                Unmatched Password:
+                  value:
+                    status: fail
+                    errors: Password not match!
+                    message: Bad request. Please check your input
+                Existing Email or Password:
+                  value:
+                    status: fail
+                    errors: User already exist
+                    message: Bad request. Please check your input
+                Validation errors:
+                  value:
+                    status: fail
+                    errors:
+                      message: first name is empty
+                      type: validation error
+                      path: firstName
+                    message: Validation error occured
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Cannot read properties of null (reading 'id')
+                example:
+                  status: Error
+                  message: Cannot read properties of null (reading 'id')
+
+  /auth/login:
+    post:
+      tags:
+        - "auth"
+      summary: Login user
+      description: Login user that already created from register
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email that used by user in register before
+                password:
+                  type: string
+                  description: Password that created by user in register before
+      responses:
+        "200":
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                    format: jwt
+                    example: exampleRandomCode.exampleRandomCode.exampleRandomCode
+                  message:
+                    type: string
+                    example: Welcome {user first name} {user last name}
+        "400":
+          description: Bad Request Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: User not found!
+                      - type: string
+                        example: Wrong password!
+                  message:
+                    type: string
+              examples:
+                User Not Register Yet:
+                  value:
+                    status: fail
+                    errors: User not found!
+                    message: Bad request. Please check your input
+                Wrong Password:
+                  value:
+                    status: fail
+                    errors: Wrong password!
+                    message: Bad request. Please check your input
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: WHERE parameter "email" has invalid "undefined" value
+                example:
+                  status: Error
+                  message: WHERE parameter "email" has invalid "undefined" value
+
+  /auth/logout:
+    post:
+      tags:
+        - "auth"
+      summary: Logout user
+      description: Logout user that already login
+      operationId: LogoutUser
+      parameters:
+        - in: header
+          name: Authorization
+          description: JWT Token from login
+          schema:
+            type: string
+            format: jwt
+          required: true
+      responses:
+        "200":
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    example: null
+                  message:
+                    type: string
+                    example: Logout Success
+                example:
+                  status: success
+                  data: null
+                  message: Logout Success
+
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Unauthorized, Log in first!
+                example:
+                  status: fail
+                  data: null
+                  message: Unauthorized, Log in first!
+
+  # Controller Upload - Upload Single File & Multiple File
+  /upload/avatar:
+    post:
+      tags:
+        - upload
+      summary: Upload single file
+      description: Upload single file such as image
+      operationId: uploadAvatar
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: Image file (automatically change to Buffer format)
+      responses:
+        "201":
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    example: data
+                  message:
+                    type: string
+                    example: Upload success
+                example:
+                  status: success
+                  data:
+                    public_id: string
+                    format: string
+                    resource_type: string
+                    width: number
+                    height: number
+                    bytes: number
+                    original_filename: string
+                    secure_URL: string
+                  message: Upload success
+        "400":
+          description: Bad Request Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Error message!
+                example:
+                  status: fail
+                  message: Unauthorized, Log in first!
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Error message!
+                example:
+                  status: error
+                  message: Error message!
+
+  /upload/pictures:
+    post:
+      tags:
+        - upload
+      summary: Upload multiple images
+      description: Upload multiple images
+      operationId: uploadPictures
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: Images file (automatically change to Buffer format)
+      responses:
+        "201":
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    example: data
+                  message:
+                    type: string
+                    example: Upload success
+                example:
+                  status: success
+                  data: data
+                  message: Upload success
+        "400":
+          description: Bad Request Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Error message!
+                example:
+                  status: fail
+                  message: Unauthorized, Log in first!
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Error message!
+                example:
+                  status: error
+                  message: Error message!
+
+components:
+  schemas:
+    Users:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        firstName:
+          type: string
+          example: Jamil
+        lastName:
+          type: string
+          example: Jamal
+        email:
+          type: string
+          example: jamaljamil@gmail.com
+        phoneNumber:
+          type: integer
+          format: int32
+          example: 081111111111
+        address:
+          type: string
+          example: Jakarta
+        createdAt:
+          type: string
+          format: data-time
+        updatedAt:
+          type: string
+          format: data-time
+        password:
+          type: string
+          format: password
+        token:
+          type: string
+        isAdmin:
+          type: boolean
+        image:
+          type: string
+    Orders:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        userId:
+          type: integer
+          format: int64
+          example: 10
+        itemId:
+          type: integer
+          format: int64
+          example: 10
+        qty:
+          type: integer
+          format: int32
+          example: 10
+        totalPrice:
+          type: number
+          format: float
+          example: 2000,00
+        status:
+          type: string
+          description: Order Status
+          example: pending
+          enum:
+            - pending
+            - processing
+            - shipped
+            - delivered
+            - canceled
+        createdAt:
+          type: string
+          format: data-time
+        updatedAt:
+          type: string
+          format: data-time
+    Items:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Gitar Spanyol
+        price:
+          type: number
+          format: float
+          example: 2000,00
+        stock:
+          type: integer
+          format: int64
+          example: 10
+        image:
+          type: string
+        category:
+          type: string
+        dsc:
+          type: string
+        createdAt:
+          type: string
+          format: data-time
+        updatedAt:
+          type: string
+          format: data-time
