@@ -3,19 +3,11 @@ const {
 	successResponse,
 	notfoundResponse,
 	serverErrorResponse,
-	unauthorizedResponse,
 } = require("../helper/formatResponse");
-const { verify } = require("../lib/jwt");
 
 class UserController {
 	static allUsers = async (req, res) => {
-		const token = req.headers.authorization?.split(" ")[1];
-		const verified = verify(token);
 		try {
-			if (!token) {
-				return unauthorizedResponse(res);
-			}
-
 			const data = await User.findAll({
 				attributes: [
 					"id",
@@ -42,7 +34,7 @@ class UserController {
 		try {
 			const { id } = req.params;
 			const data = await User.findByPk(id);
-			if (data === null) {
+			if (!data) {
 				return notfoundResponse(res, `data User by id (${id}) is not found`);
 			} else {
 				let result = {
