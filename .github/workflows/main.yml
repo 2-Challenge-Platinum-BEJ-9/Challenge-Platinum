@@ -1,0 +1,37 @@
+name: binar-platinum
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: copy file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "."
+          target: "/app/binar-platinum"
+      - name: deploy & run
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /app/binar-platinum
+            echo '{ "development": { "username": "${{ secrets.DB_NAME }}", "password": "${{ secrets.DB_PASSWORD }}", "database": "${{ secrets.DB_NAME }}", "host": "${{ secrets.DB_HOST }}", "dialect": "postgres" } }' > config/config.json
+            npm i
+            npx sequelize db:migrate
+            pm2 stop all
+            pm2 start server.js
