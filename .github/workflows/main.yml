@@ -31,6 +31,7 @@ jobs:
           script: |
             cd /app/binar-platinum
             echo '{ "development": { "username": "${{ secrets.DB_NAME }}", "password": "${{ secrets.DB_PASSWORD }}", "database": "${{ secrets.DB_NAME }}", "host": "${{ secrets.DB_HOST }}", "dialect": "postgres" } }' > config/config.json
+            echo ${{ secrets.ENV }} > .env
             npm i
             npx sequelize db:migrate
             pm2 stop all
