@@ -17,12 +17,11 @@ router
 				return errorResponse(res, "Missing verification email");
 			}
 
+			await User.update({ isVerified: true }, { where: { email: email } });
 			const user = await User.findOne({ where: { email: email } });
 			if (!user) {
 				return errorResponse(res, "Invalid verification email");
 			}
-
-			await User.update({ isVerified: true }, { where: { email: email } });
 
 			const data = {
 				id: user.id,
