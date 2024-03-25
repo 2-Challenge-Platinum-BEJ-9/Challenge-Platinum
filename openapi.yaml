@@ -487,7 +487,15 @@ paths:
                     example: Upload success
                 example:
                   status: success
-                  data: data
+                  data:
+                    public_id: string
+                    format: string
+                    resource_type: string
+                    width: number
+                    height: number
+                    bytes: number
+                    original_filename: string
+                    secure_URL: string
                   message: Upload success
         "400":
           description: Bad Request Error
