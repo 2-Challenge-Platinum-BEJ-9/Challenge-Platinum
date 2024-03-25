@@ -181,6 +181,289 @@ paths:
         "404":
           description: Users not found!
 
+  #Orders API
+
+  /orders:
+    get:
+      tags:
+        - orders
+      summary: Get All Orders
+      description: Get all orders from database
+      operationId: getAllOrders
+      responses:
+        "200":
+          description: found all data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Cannot read properties of null (reading 'id')
+                example:
+                  status: fail
+                  errors: errors message
+                  message: Bad request. Please check your input
+        "404":
+          description: not found Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found
+    post:
+      tags:
+        - orders
+      summary: Create orders
+      description: Create new orders
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int64
+                  example: 10
+                itemId:
+                  type: integer
+                  format: int64
+                  example: 10
+                qty:
+                  type: integer
+                  format: int32
+                  example: 10
+                status:
+                  type: string
+                  description: Order Status
+                  example: pending
+                  enum:
+                    - pending
+                    - processing
+                    - shipped
+                    - delivered
+                    - canceled
+      responses:
+        "200":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request. Please check your input
+        "404":
+          description: not found Response Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                Users not found:
+                  value:
+                    status: fail
+                    message: Users not found
+                Items not found:
+                  value:
+                    status: fail
+                    message: Items not found
+
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                Insuficient qty items:
+                  value:
+                    status: fail
+                    message: Item {id} insufficient to be ordered
+                Others eror:
+                  value:
+                    status: Error
+
+                    message: Internal Server Error
+
+  /orders/{id}:
+    get:
+      tags:
+        - orders
+      summary: Get Order by Id
+      description: Get data from order
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: data id is found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Cannot read properties of null (reading 'id')
+                example:
+                  status: fail
+                  errors: errors message
+                  message: Bad request. Please check your input
+        "404":
+          description: not found Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found"400"
+    put:
+      tags:
+        - orders
+      summary: Update data depends on which id
+      description: Updated ordered data
+      operationId: updateOrder
+      parameters:
+        - name: id
+          in: path
+          description: ID of users to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        "200":
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Orders"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example:
+                example:
+                  status: fail
+                  message: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  errors:
+                    oneOf:
+                      - type: string
+                        example: Example error message
+                      - type: object
+                        example:
+                          message: Example error message
+                          type: Example error type
+                          path: Example error path
+                  message:
+                    type: string
+              examples:
+                order id is not found:
+                  value:
+                    status: Error
+                    message: id ${id} not found!
+                Others eror:
+                  value:
+                    status: Error
+                    message: Failed to update order
+
   # Controller Auth - Register, Login and Logout
   /auth/register:
     post:
