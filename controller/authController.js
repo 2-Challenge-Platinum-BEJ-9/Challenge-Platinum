@@ -8,6 +8,10 @@ const {
 } = require("../helper/formatResponse");
 const { sign, verify } = require("../lib/jwt");
 const logger = require("../helper/logger");
+const {
+	sendVerificationEmail,
+	generateVerificationToken,
+} = require("../lib/nodemailer");
 
 class AuthUser {
 	static async register(req, res) {
@@ -47,6 +51,7 @@ class AuthUser {
 				password: password,
 				image: image,
 				isAdmin: isAdmin,
+				isVerified: false,
 			});
 
 			const data = {
@@ -58,7 +63,10 @@ class AuthUser {
 				address: user.address,
 				image: user.image,
 				isAdmin: user.isAdmin,
+				isVerified: user.isVerified,
 			};
+
+			sendVerificationEmail(email);
 
 			logger.info(`Register Success!`);
 			return successResponse(

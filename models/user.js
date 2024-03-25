@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
 				notEmpty: true,
 				unique: {
 					args: true,
-					msg: "email is already", //harus unik
+					msg: "email is already",
 				},
 				isEmail: true,
 				validate: {
@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: "email is empty",
 					},
 					isEmail: {
-						msg: "Incorrect email format", //format email
+						msg: "Incorrect email format",
 					},
 				},
 			},
@@ -113,6 +113,16 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					notNull: {
 						msg: "isAdmin is null",
+					},
+				},
+			},
+			isVerified: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false,
+				validate: {
+					notNull: {
+						msg: "isVerified is null",
 					},
 				},
 			},
